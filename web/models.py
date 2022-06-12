@@ -7,6 +7,7 @@ class Tag(models.Model):
 
 class ProfileStud(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    major = models.CharField(max_length=225)
     is_verified = models.BooleanField(default=False)
 
 class ProfileMentor(models.Model):

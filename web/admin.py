@@ -4,10 +4,10 @@ from . import models
 # Register your models here.
 
 
-class TublarMentor(admin.ModelAdmin):
+class TublarMentor(admin.TabularInline):
     model = models.ProfileMentor
-    
-class TublarStudent(admin.ModelAdmin):
+
+class TublarStudent(admin.TabularInline):
     model  = models.ProfileStud
 
 
