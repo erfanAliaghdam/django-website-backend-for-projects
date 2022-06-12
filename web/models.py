@@ -6,20 +6,17 @@ class Tag(models.Model):
     name = models.CharField(max_length=225)
 
 class ProfileStud(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    is_verified = models.BooleanField(default=False)
 
 class ProfileMentor(models.Model):
-    user        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     is_verified = models.BooleanField(default=False)
     tag         = models.ManyToManyField(Tag)
  
 class VerificationDoc(models.Model):
-    personalId = models.ImageField()
-    professor  = models.ForeignKey(ProfileMentor, on_delete=models.PROTECT)
-    
-class VerificationDocument(models.Model):
+    user     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     document = models.FileField()
-    professor = models.ForeignKey(VerificationDoc, on_delete=models.CASCADE)
 
 class Project(models.Model):
     title       = models.CharField(max_length=250)
