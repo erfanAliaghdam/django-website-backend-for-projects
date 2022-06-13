@@ -6,7 +6,7 @@ class User(AbstractUser):
         super().__init__(*args, **kwargs)
         username = self._meta.get_field('username')
         username.verbose_name = "personal id"
-    phone           = models.PositiveIntegerField(unique=True)
+    phone           = models.PositiveBigIntegerField(unique=True)
     is_mentor       = models.BooleanField(default=False)
     USERNAME_FIELD  = "username"
     REQUIRED_FIELDS = ["phone"]
