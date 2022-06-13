@@ -12,6 +12,7 @@ django-debug-toolbar = "*"
 pillow = "*"
 djoser = "*"
 djangorestframework = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
