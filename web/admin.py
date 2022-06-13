@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.db.models import Count
 from . import models
 # Register your models here.
 
@@ -30,8 +31,18 @@ class RequestedProjectAdmin(admin.ModelAdmin):
     def username(self, obj):
         return obj.user.username
 
+@admin.register(models.Tag)
+class TagAdmin(admin.ModelAdmin):
+    model = models.Tag
+    list_display = ['name', 'color_format', 'projects_count']
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('projects').annotate(
+            proj_count = Count('projects')
+        )
+    def color_format(self, obj):
+        return format_html(f"<b style='color:{obj.color};background-color:black;text-decoration:bold;border-radius:3px;padding:2px;'>{obj.color}</b>")
 
-admin.site.register(models.ProfileMentor)
-admin.site.register(models.ProfileStud)
-admin.site.register(models.Tag)
+
+    def projects_count(self, obj):
+        return obj.proj_count
 admin.site.register(models.Project)
