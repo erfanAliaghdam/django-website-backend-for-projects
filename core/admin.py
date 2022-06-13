@@ -1,10 +1,6 @@
-from xml.dom.minidom import Attr
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.forms import IntegerField
-from django.db import models
 from web.admin import TublarDocument, TublarMentor, TublarStudent
-
 from .models import User
 
 
@@ -48,6 +44,10 @@ class UserAdmin(BaseUserAdmin):
     #* ------------------------------
 
     def get_inlines(self, request, obj):
-        if request.user.is_mentor:
+        if obj is None:
+            return []
+        elif obj.is_mentor:
+            print(self.get_changelist_instance)
             return [TublarDocument, TublarMentor]
         return [TublarStudent]
+

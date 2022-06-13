@@ -10,16 +10,13 @@ class TublarMentor(admin.TabularInline):
 class TublarStudent(admin.TabularInline):
     model  = models.ProfileStud
 
-
-
 class TublarDocument(admin.TabularInline):
     model  = models.VerificationDoc
     readonly_fields = ['thumbnail']
 
-
     def thumbnail(self, instance):
-        if instance.image.name != '':
-            return format_html(f'<img src={instance.image.url} style="width:100px;height:100px;object-fit:cover;" />')
+        if instance.document.name != '':
+            return format_html(f'<a href={instance.document.url}><img src={instance.document.url} style="width:100px;height:100px;object-fit:cover;" /></a>')
         return " "
 
 

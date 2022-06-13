@@ -17,7 +17,7 @@ class ProfileMentor(models.Model):
  
 class VerificationDoc(models.Model):
     user     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
-    document = models.FileField()
+    document = models.FileField(upload_to='web/uploads')
 
 class Project(models.Model):
     title       = models.CharField(max_length=250)
