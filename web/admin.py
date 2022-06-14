@@ -60,10 +60,10 @@ class ProjectAdmin(admin.ModelAdmin):
     model = models.Project
     prepopulated_fields = {'slug': ('title',), }
     fields = ['title', 'slug', 'description', 'is_active', 'tag']
-    list_display = ['title', 'applied_count']
+    list_display = ['title', 'applied_count', 'is_active']
     search_fields = ['title', 'description', 'tag__name']
     list_filter = [TagAutoCompleteFilter]
-    
+    list_editable = ['is_active']
     filter_horizontal = ('tag',)
     # TODO : use better filters package and add search to filters box.
     def get_queryset(self, request):
