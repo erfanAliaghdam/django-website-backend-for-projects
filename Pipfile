@@ -16,6 +16,7 @@ python-dotenv = "*"
 django-colorfield = "*"
 django-admin-list-filter-dropdown = "*"
 django-admin-searchable-dropdown = "*"
+django-filter = "*"
 
 [dev-packages]
 

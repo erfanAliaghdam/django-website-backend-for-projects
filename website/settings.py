@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'admin_searchable_dropdown',
+    'django_filters',
     'colorfield',
     'rest_framework',
     'djoser',
@@ -155,6 +156,8 @@ REST_FRAMEWORK={
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+
 }
 
 DJOSER = {
