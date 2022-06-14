@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'admin_searchable_dropdown',
     'colorfield',
     'rest_framework',
     'djoser',
@@ -89,11 +90,11 @@ WSGI_APPLICATION = 'website.wsgi.application'
 DATABASES =  {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('NAME'),
-        'USER': os.getenv('USER'),
+        'NAME':     os.getenv('NAME'),
+        'USER':     os.getenv('USER'),
         'PASSWORD': os.getenv('PASSWORD'),
-        'HOST': os.getenv('HOST'),
-        'PORT': os.getenv('PORT'),
+        'HOST':     os.getenv('HOST'),
+        'PORT':     os.getenv('PORT'),
     }
 }
 

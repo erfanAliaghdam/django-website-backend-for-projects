@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from colorfield.fields import ColorField
-from django.utils.html import format_html
 from uuid import uuid4
 
 
@@ -32,9 +31,16 @@ class VerificationDoc(models.Model):
 
 class Project(models.Model):
     title       = models.CharField(max_length=250)
+    slug        = models.SlugField(auto_created=True)
     description = models.TextField()
     created_at  = models.DateTimeField(auto_now_add=True)
     tag         = models.ManyToManyField(Tag, related_name='projects')
+    is_active   = models.BooleanField(default=True)
+
+
+    def __str__(self) -> str:
+        return self.title
+
 
 class RequestedProjects(models.Model):
     id   = models.UUIDField(primary_key=True, default=uuid4, editable=False)
@@ -42,4 +48,5 @@ class RequestedProjects(models.Model):
 
 class RequestItem(models.Model):
     parent  = models.ForeignKey(RequestedProjects, on_delete=models.PROTECT)
-    project = models.ForeignKey(Project, on_delete = models.PROTECT)
+    project = models.ForeignKey(Project, on_delete = models.PROTECT, related_name='requests')
+    

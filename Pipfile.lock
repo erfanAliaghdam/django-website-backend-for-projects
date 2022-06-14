@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7494d5ce31aa2e98a133e685cec2f2f9e9fa61dab1bbb8809becf6a0b4e60384"
+            "sha256": "7e71690e4df2d0de4b4407bc2897ae2d5f70bcaccfb550b45c3f4af5e91d3128"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -92,7 +92,7 @@
                 "sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597",
                 "sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df"
             ],
-            "markers": "python_version >= '3.5'",
+            "markers": "python_full_version >= '3.5.0'",
             "version": "==2.0.12"
         },
         "coreapi": {
@@ -153,6 +153,22 @@
             "index": "pypi",
             "version": "==4.0.5"
         },
+        "django-admin-list-filter-dropdown": {
+            "hashes": [
+                "sha256:07cd37b6a9be1b08f11d4a92957c69b67bc70b1f87a2a7d4ae886c93ea51eb53",
+                "sha256:bf1b48bab9772dad79db71efef17e78782d4f2421444d5e49bb10e0da71cd6bb"
+            ],
+            "index": "pypi",
+            "version": "==1.0.3"
+        },
+        "django-admin-searchable-dropdown": {
+            "hashes": [
+                "sha256:5e8dc7544c76d3aed4b7410eda4b63b845b908b4b6bf9351d0e993b56747ba45",
+                "sha256:7db77cc966af88134d383b2fe36b11aa67dcf743dd5f66ab53d9169e993bd8c5"
+            ],
+            "index": "pypi",
+            "version": "==1.2"
+        },
         "django-colorfield": {
             "hashes": [
                 "sha256:08d093d5b31b599b681665ab97b957045c4a4c0b93cfc434bd257378a7193c96",
@@ -212,7 +228,7 @@
                 "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff",
                 "sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d"
             ],
-            "markers": "python_version >= '3.5'",
+            "markers": "python_full_version >= '3.5.0'",
             "version": "==3.3"
         },
         "itypes": {
@@ -489,7 +505,7 @@
                 "sha256:0c00730c74263a94e5a9919ade150dfc3b19c574389985446148402998287dae",
                 "sha256:48719e356bb8b42991bdbb1e8b83223757b93789c00910a616a071910ca4a64d"
             ],
-            "markers": "python_version >= '3.5'",
+            "markers": "python_full_version >= '3.5.0'",
             "version": "==0.4.2"
         },
         "uritemplate": {
