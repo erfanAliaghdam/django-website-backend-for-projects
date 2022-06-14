@@ -22,14 +22,21 @@ class TublarDocument(admin.TabularInline):
             return format_html(f'<a href={instance.document.url}><img src={instance.document.url} style="width:100px;height:100px;object-fit:cover;border-radius:8px;" /></a>')
         return " "
 
+class TublarRequestProjectItems(admin.TabularInline):
+    model = models.RequestItem
+    extra = 1
+    autocomplete_fields = ['project']
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('project')
 
 @admin.register(models.RequestedProjects)
 class RequestedProjectAdmin(admin.ModelAdmin):
     model = models.RequestedProjects
-    readonly_fields = ['id']
+    readonly_fields = ['id', 'user']
     list_select_related = ['user']
     list_display = ['username']
-
+    inlines = [TublarRequestProjectItems]
     def username(self, obj):
         return obj.user.username
 
