@@ -48,5 +48,6 @@ class RequestedProjects(models.Model):
 
 class RequestItem(models.Model):
     parent  = models.ForeignKey(RequestedProjects, on_delete=models.PROTECT)
-    project = models.ForeignKey(Project, on_delete = models.PROTECT, related_name='requests')
+    # TODO on delete project send email or sms to user
+    project = models.ForeignKey(Project, null=True,on_delete=models.SET_NULL, related_name='requests')
     
