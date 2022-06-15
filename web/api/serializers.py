@@ -1,14 +1,12 @@
-from dataclasses import fields
 from rest_framework import serializers
-from .models import Project, Tag
+from ..models import Project
 
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    num_tags = serializers.IntegerField()
+    num_tags = serializers.IntegerField(read_only = True)
     class Meta:
         model = Project
         fields = ['id', 'title', 'description', 'tag', 'num_tags']
         
 
-    

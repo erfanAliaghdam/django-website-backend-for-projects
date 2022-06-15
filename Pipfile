@@ -17,6 +17,8 @@ django-colorfield = "*"
 django-admin-list-filter-dropdown = "*"
 django-admin-searchable-dropdown = "*"
 django-filter = "*"
+install = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
