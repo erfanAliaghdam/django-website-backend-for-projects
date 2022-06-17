@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import Project
+from ..models import Project, Tag
 
 
 
@@ -9,4 +9,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = ['id', 'title', 'description', 'tag', 'num_tags']
         
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = Tag
+        fields = ['id', 'name', 'color']
 

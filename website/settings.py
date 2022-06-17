@@ -172,7 +172,8 @@ DJOSER = {
     'SERIALIZERS':{
         'user_create'  : 'core.api.serializers.UserCreateSerializer',
         'current_user' : 'core.api.serializers.UserSerializer',
-    }
+    },
+    
 }
 
 SIMPLE_JWT = {
