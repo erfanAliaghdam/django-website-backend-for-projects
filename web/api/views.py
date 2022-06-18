@@ -1,3 +1,4 @@
+from multiprocessing import context
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
@@ -29,6 +30,7 @@ class ProjectViewSet(ModelViewSet):
         return obj.num_tags
     
 
+
     # @action(detail=True, methods=['post'], url_path='request', permission_classes=[IsAuthenticated])
     # def request_project(self, request, *args, **kwargs):
     #     project = self.get_object()
@@ -43,9 +45,7 @@ class TagViewSet(ReadOnlyModelViewSet):
 class RequestedItemsViewSet(ModelViewSet):
     serializer_class = RequestedItemsSerializer
     permission_classes=[IsAuthenticated]
-    http_method_names = ['get', 'delete']
+    http_method_names = ['get', 'delete', 'post']
     def get_queryset(self):
         return RequestItem.objects.select_related('project', 'parent').filter(parent__user = self.request.user).all()
-
-
 
