@@ -20,8 +20,8 @@ class TagSerializer(serializers.ModelSerializer):
 
 class SimpleProjectSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Project
-        fields = ['id', 'title', 'tag']
+        model  = Project
+        fields = ['id', 'title']
         
 class RequestedItemsSerializer(serializers.ModelSerializer):
     project = SimpleProjectSerializer()

@@ -43,9 +43,9 @@ class TagViewSet(ReadOnlyModelViewSet):
 class RequestedItemsViewSet(ModelViewSet):
     serializer_class = RequestedItemsSerializer
     permission_classes=[IsAuthenticated]
-    http_method_names = ['get', 'post', 'delete']
+    http_method_names = ['get', 'delete']
     def get_queryset(self):
-        return RequestItem.objects.select_related('project').filter(parent__user = self.request.user).all()
+        return RequestItem.objects.select_related('project', 'parent').filter(parent__user = self.request.user).all()
 
 
 
