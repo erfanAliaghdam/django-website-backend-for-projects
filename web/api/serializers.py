@@ -25,12 +25,9 @@ class SimpleProjectSerializer(serializers.ModelSerializer):
         
 class RequestedItemsSerializer(serializers.ModelSerializer):
     project = SimpleProjectSerializer()
+    status  = serializers.CharField(read_only = True)
     class Meta:
         model  = RequestItem
-        fields = ['id', 'project']
+        fields = ['id', 'project', 'status']
 
-class RequestedProjectsSerializer(serializers.ModelSerializer):
-    items = RequestedItemsSerializer(many=True, read_only=True)
-    class Meta:
-        model  = RequestedProjects
-        fields = ['items', 'user']
+

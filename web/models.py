@@ -46,7 +46,15 @@ class RequestedProjects(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='requested_projects')
 
 class RequestItem(models.Model):
+    PENDING = 'p'
+    APPROVED = 'A'
+    REJECTED = 'R'
+    STATUS =(
+        (PENDING, 'Pending'),
+        (APPROVED, 'Approved'),
+        (REJECTED, 'Rejected'),
+    )
     parent  = models.ForeignKey(RequestedProjects, on_delete=models.PROTECT, related_name='items')
     # TODO on delete project send email or sms to user
     project = models.ForeignKey(Project, null=True,on_delete=models.SET_NULL, related_name='requests')
-    
+    status  = models.CharField(max_length=5, choices=STATUS, default=PENDING)
