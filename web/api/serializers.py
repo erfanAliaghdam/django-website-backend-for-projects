@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from ..models import Project, Tag
+from ..models import Project, Tag, RequestedProjects, RequestItem
+from django.conf import settings
 
 
 
@@ -15,3 +16,21 @@ class TagSerializer(serializers.ModelSerializer):
         model  = Tag
         fields = ['id', 'name', 'color']
 
+
+
+class SimpleProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['id', 'title', 'tag']
+        
+class RequestedItemsSerializer(serializers.ModelSerializer):
+    project = SimpleProjectSerializer()
+    class Meta:
+        model  = RequestItem
+        fields = ['id', 'project']
+
+class RequestedProjectsSerializer(serializers.ModelSerializer):
+    items = RequestedItemsSerializer(many=True, read_only=True)
+    class Meta:
+        model  = RequestedProjects
+        fields = ['items', 'user']

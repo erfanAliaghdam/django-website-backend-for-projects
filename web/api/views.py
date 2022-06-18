@@ -2,11 +2,12 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
-from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 from django.db.models import Count
-from .serializers import (ProjectSerializer, TagSerializer)
-from ..models import Project, Tag
+from django.conf import settings
+from .serializers import (ProjectSerializer, TagSerializer, SimpleProjectSerializer, RequestedItemsSerializer)
+from ..models import Project, Tag, RequestedProjects, RequestItem
 from ..permissions import IsAdminOrReadOnly
 # Create your views here.
 
@@ -14,7 +15,7 @@ from ..permissions import IsAdminOrReadOnly
 
 
 class ProjectViewSet(ModelViewSet):
-    queryset         = Project.objects.prefetch_related('tag').all().annotate(
+    queryset           = Project.objects.prefetch_related('tag').all().annotate(
         num_tags=Count('tag')
     )
     serializer_class   = ProjectSerializer
@@ -27,11 +28,24 @@ class ProjectViewSet(ModelViewSet):
     def num_tags(self, obj):
         return obj.num_tags
     
+
+    # @action(detail=True, methods=['post'], url_path='request', permission_classes=[IsAuthenticated])
+    # def request_project(self, request, *args, **kwargs):
+    #     project = self.get_object()
+    #     print(project)
+
 class TagViewSet(ReadOnlyModelViewSet):
     queryset         = Tag.objects.all()
     serializer_class = TagSerializer
     
  
+
+class RequestedItemsViewSet(ModelViewSet):
+    serializer_class = RequestedItemsSerializer
+    permission_classes=[IsAuthenticated]
+    http_method_names = ['get', 'post', 'delete']
+    def get_queryset(self):
+        return RequestItem.objects.select_related('project').filter(parent__user = self.request.user).all()
 
 
 

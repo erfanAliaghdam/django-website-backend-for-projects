@@ -37,17 +37,16 @@ class Project(models.Model):
     tag         = models.ManyToManyField(Tag, related_name='projects')
     is_active   = models.BooleanField(default=True)
 
-
     def __str__(self) -> str:
         return self.title
 
 
 class RequestedProjects(models.Model):
     id   = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='requested_projects')
 
 class RequestItem(models.Model):
-    parent  = models.ForeignKey(RequestedProjects, on_delete=models.PROTECT)
+    parent  = models.ForeignKey(RequestedProjects, on_delete=models.PROTECT, related_name='items')
     # TODO on delete project send email or sms to user
     project = models.ForeignKey(Project, null=True,on_delete=models.SET_NULL, related_name='requests')
     
