@@ -61,7 +61,7 @@ class RequestItem(models.Model):
 
 
 class ApprovedRequest(models.Model):
-    user       = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     def __str__(self):
         return (str(self.user.username) + str(self.project.title))

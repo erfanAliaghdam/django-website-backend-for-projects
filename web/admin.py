@@ -73,3 +73,15 @@ class ProjectAdmin(admin.ModelAdmin):
 
     def applied_count(self, obj):
         return obj.applied_No
+
+
+class ApprovedItemTublar(admin.TabularInline):
+    model = models.ApprovedItem
+    extra = 0
+
+
+class ApprovedRequest(admin.ModelAdmin):
+    models       = models.ApprovedRequest
+    list_display = ['id', 'user', 'project', 'status']
+    inlines      = [ApprovedItemTublar]
+
