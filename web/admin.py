@@ -81,7 +81,11 @@ class ApprovedItemTublar(admin.TabularInline):
 
 
 class ApprovedRequest(admin.ModelAdmin):
-    models       = models.ApprovedRequest
+    model        = models.ApprovedRequest
     list_display = ['id', 'user', 'project', 'status']
     inlines      = [ApprovedItemTublar]
+    list_filter  = ('items__status',)
+    
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('items')

@@ -75,7 +75,7 @@ class ApprovedItem(models.Model):
         (CANCELED, 'Canceled'),
         (PASSED, 'Passed'),
     )
-    parent     = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT)
+    parent     = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT, related_name='items')
     project    = models.ForeignKey(Project, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     status     = models.CharField(choices=APPROVED_STATUS, default=ACTIVE, max_length=5)
