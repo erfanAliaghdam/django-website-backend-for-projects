@@ -58,3 +58,28 @@ class RequestItem(models.Model):
     # TODO on delete project send email or sms to user
     project = models.ForeignKey(Project, null=True,on_delete=models.SET_NULL, related_name='requests')
     status  = models.CharField(max_length=5, choices=STATUS, default=PENDING)
+
+
+class ApprovedRequest(models.Model):
+    user       = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return (str(self.user.username) + str(self.project.title))
+
+class ApprovedItem(models.Model):
+    ACTIVE   = 'A'
+    CANCELED = 'C'
+    PASSED   = 'P'
+    APPROVED_STATUS = (
+        (ACTIVE, 'Active'),
+        (CANCELED, 'Canceled'),
+        (PASSED, 'Passed'),
+    )
+    parent     = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT)
+    project    = models.ForeignKey(Project, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status     = models.CharField(choices=APPROVED_STATUS, default=ACTIVE, max_length=5)
+
+    def __str__(self):
+        return (str(self.user.username) + str(self.project.title))
+    

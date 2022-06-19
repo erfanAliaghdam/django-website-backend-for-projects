@@ -1,4 +1,3 @@
-from cgitb import lookup
 from django.urls import path, include
 from .api.views import  ProjectViewSet, TagViewSet, RequestedItemsViewSet
 from rest_framework.routers import DefaultRouter
@@ -12,5 +11,5 @@ router.register('requested', RequestedItemsViewSet, basename='requested-projects
 registerProjRouter = DefaultRouter()
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('', include(router.urls)),
 ]
