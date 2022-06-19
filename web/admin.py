@@ -79,9 +79,9 @@ class ApprovedItemTublar(admin.TabularInline):
     model = models.ApprovedItem
     extra = 0
 
-
+@admin.register(models.ApprovedRequest)
 class ApprovedRequest(admin.ModelAdmin):
     models       = models.ApprovedRequest
-    list_display = ['id', 'user', 'project', 'status']
+    list_display = ['user']
     inlines      = [ApprovedItemTublar]
 
