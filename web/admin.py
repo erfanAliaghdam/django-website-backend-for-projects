@@ -78,10 +78,13 @@ class ProjectAdmin(admin.ModelAdmin):
 class ApprovedItemTublar(admin.TabularInline):
     model = models.ApprovedItem
     extra = 0
+    autocomplete_fields = ['project']
 
 @admin.register(models.ApprovedRequest)
 class ApprovedRequest(admin.ModelAdmin):
-    models       = models.ApprovedRequest
+    model        = models.ApprovedRequest
     list_display = ['user']
     inlines      = [ApprovedItemTublar]
-
+    list_filter  = ('items__status',)
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('items')

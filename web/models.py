@@ -63,9 +63,6 @@ class RequestItem(models.Model):
 class ApprovedRequest(models.Model):
     user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
-    def __str__(self):
-        return (str(self.user.username) + str(self.project.title))
-
 class ApprovedItem(models.Model):
     ACTIVE   = 'A'
     CANCELED = 'C'
@@ -75,11 +72,11 @@ class ApprovedItem(models.Model):
         (CANCELED, 'Canceled'),
         (PASSED, 'Passed'),
     )
-    parent     = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT)
+    parent     = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT, related_name='items')
     project    = models.ForeignKey(Project, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     status     = models.CharField(choices=APPROVED_STATUS, default=ACTIVE, max_length=5)
 
     def __str__(self):
-        return (str(self.user.username) + str(self.project.title))
+        return (str(self.parent.user.username) + str(self.project.title))
     

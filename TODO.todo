@@ -1,2 +1,6 @@
 fix admin projects search on tag filter box.
 use better django filters 
+
+
+
+# TODO create new permission for adding project just by mentoProfile and verification.

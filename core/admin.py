@@ -40,7 +40,7 @@ class UserAdmin(BaseUserAdmin):
     #* ------------------------------
     list_filter = ("is_staff", "is_superuser", "is_active", "groups", "is_mentor")
     #* ------------------------------
-
+    
     #* ------------------------------
 
     def get_inlines(self, request, obj):
