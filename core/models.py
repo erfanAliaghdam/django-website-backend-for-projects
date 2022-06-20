@@ -11,4 +11,17 @@ class User(AbstractUser):
     USERNAME_FIELD  = "username"
     REQUIRED_FIELDS = ["phone"]
 
- 
+class Message(models.Model):
+    ALERT = 'A'
+    WARNING = 'W'
+    NOTIFY = 'N'
+    MESSAGE_TYPE_CHOICES = (
+        (ALERT, 'Alert'),
+        (WARNING, 'Warning'),
+        (NOTIFY, 'Notify'),
+    )
+    reciever     = models.ManyToManyField(User, related_name="reciever")
+    message      = models.TextField()
+    send_time    = models.DateTimeField(auto_now_add=True)
+    message_type = models.CharField(choices=MESSAGE_TYPE_CHOICES, default=NOTIFY, max_length=5)
+    

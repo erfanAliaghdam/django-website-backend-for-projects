@@ -8,8 +8,8 @@ from rest_framework.decorators import action
 from django.db.models import Count
 from django.conf import settings
 from .serializers import (ProjectSerializer, TagSerializer, SimpleProjectSerializer, RequestedItemsSerializer)
-from ..models import Project, Tag, RequestedProjects, RequestItem
-from ..permissions import IsAdminOrReadOnly
+from ..models import Project, Tag, RequestItem
+from ..permissions import IsAdminOrReadOnly, IsMentorOrReadOnly
 # Create your views here.
 
 
@@ -24,7 +24,7 @@ class ProjectViewSet(ModelViewSet):
     filterset_fields   = ['tag']
     search_fields      = ['title', 'description']
     ordering_fields    = ['num_tags']    
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsMentorOrReadOnly]
 
     def num_tags(self, obj):
         return obj.num_tags
