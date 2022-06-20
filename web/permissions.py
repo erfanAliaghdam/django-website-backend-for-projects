@@ -19,6 +19,6 @@ class IsMentorOrReadOnly(permissions.BasePermission):
             return True
         try:
             if request.user.is_authenticated:
-                return bool(request.user.profile.is_verified)
+                return bool((request.user.profile.is_verified and request.user.is_mentor) or request.user.is_staff or request.user.is_superuser)
         except: return False
             
