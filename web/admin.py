@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.urls import reverse, reverse_lazy
 from django.utils.html import format_html
 from django.db.models import Count
 from .filters import TagAutoCompleteFilter
@@ -80,11 +81,16 @@ class ApprovedItemTublar(admin.TabularInline):
     extra = 0
     autocomplete_fields = ['project']
 
+
+
 @admin.register(models.ApprovedRequest)
 class ApprovedRequest(admin.ModelAdmin):
     model        = models.ApprovedRequest
     list_display = ['user']
     inlines      = [ApprovedItemTublar]
     list_filter  = ('items__status',)
+    list_display_links = ['user']
+
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('items')
+
