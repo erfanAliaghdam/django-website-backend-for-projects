@@ -7,9 +7,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from django.db.models import Count
 from django.conf import settings
-from .serializers import (ProjectSerializer, TagSerializer, SimpleProjectSerializer, RequestedItemsSerializer)
-from ..models import Project, Tag, RequestItem
+from .serializers import (ProjectSerializer, TagSerializer, RequestedItemsSerializer, VerificationDocSerializer)
+from ..models import Project, Tag, RequestItem, VerificationDoc
 from ..permissions import IsAdminOrReadOnly, IsMentorOrReadOnly
+
 # Create your views here.
 
 
@@ -48,4 +49,12 @@ class RequestedItemsViewSet(ModelViewSet):
     http_method_names = ['get', 'delete', 'post']
     def get_queryset(self):
         return RequestItem.objects.select_related('project', 'parent').filter(parent__user = self.request.user).all()
+
+
+class VerificationViewSet(ModelViewSet):
+    serializer_class = VerificationDocSerializer
+    permission_classes=[IsAuthenticated]
+
+    def get_queryset(self):
+        return VerificationDoc.objects.select_related('user').filter(user = self.request.user).all()
 
