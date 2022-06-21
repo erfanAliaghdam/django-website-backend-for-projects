@@ -38,9 +38,10 @@ class UserAdmin(BaseUserAdmin):
         (("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
     #* ------------------------------
-    list_filter = ("is_staff", "is_superuser", "is_active", "groups", "is_mentor")
+    list_filter = ("is_staff", "is_superuser", "is_active", "groups", "is_mentor", "profile__is_verified")
     #* ------------------------------
-    
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('profile')
     #* ------------------------------
 
     def get_inlines(self, request, obj):
