@@ -4,7 +4,6 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from web.admin import TublarDocument, TublarMentor, TublarStudent
 from .models import User, Message
 
-
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     model = User

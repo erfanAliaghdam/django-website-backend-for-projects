@@ -21,6 +21,7 @@ install = "*"
 django-cors-headers = "*"
 
 [dev-packages]
+django-admin-interface = "*"
 
 [requires]
 python_version = "3.9"

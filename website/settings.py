@@ -36,6 +36,8 @@ INTERNAL_IPS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "admin_interface",
+    "colorfield",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,7 +47,6 @@ INSTALLED_APPS = [
     'admin_searchable_dropdown',
     'django_filters',
     'corsheaders',
-    'colorfield',
     'rest_framework',
     'djoser',
     'debug_toolbar',
@@ -182,3 +183,8 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
+
+
+#! TODO : DELETE ON DEV
+X_FRAME_OPTIONS = "SAMEORIGIN"
+SILENCED_SYSTEM_CHECKS = ["security.W019"]
