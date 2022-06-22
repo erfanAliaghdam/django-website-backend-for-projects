@@ -1,4 +1,3 @@
-from os import read
 from rest_framework import serializers
 from ..models import Project, Tag, RequestedProjects, RequestItem, VerificationDoc
 from django.conf import settings
@@ -63,6 +62,5 @@ class VerificationDocSerializer(serializers.ModelSerializer):
         model  = VerificationDoc
         fields = ['id', 'document', 'is_accepted']
     def create(self, validated_data):
-        verification_doc = VerificationDoc.objects.create(user = self.context['request'].user,
-                                                             document = validated_data['document'])
+        verification_doc = VerificationDoc.objects.create(user = self.context['request'].user, document = validated_data['document'])
         return verification_doc      

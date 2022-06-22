@@ -10,7 +10,8 @@ class User(AbstractUser):
     is_mentor       = models.BooleanField(default=False)
     USERNAME_FIELD  = "username"
     REQUIRED_FIELDS = ["phone"]
-
+    def __str__(self) -> str:
+        return (self.username + " : " + str(self.first_name))
 class Message(models.Model):
     ALERT = 'A'
     WARNING = 'W'
