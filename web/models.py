@@ -17,10 +17,11 @@ class Tag(models.Model):
         return self.name
 
 class ProfileStud(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    major = models.CharField(max_length=225)
+    user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    major       = models.CharField(max_length=225)
     is_verified = models.BooleanField(default=False)
-
+    resume      = models.TextField()
+    
 class ProfileMentor(models.Model):
     user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     is_verified = models.BooleanField(default=False)

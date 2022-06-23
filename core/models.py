@@ -12,6 +12,8 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["phone"]
     def __str__(self) -> str:
         return (self.username + " : " + str(self.first_name))
+
+        
 class Message(models.Model):
     ALERT = 'A'
     WARNING = 'W'
