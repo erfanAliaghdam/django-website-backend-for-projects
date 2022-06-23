@@ -13,7 +13,6 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 
 
 class IsMentorOrReadOnly(permissions.BasePermission):
-    
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -22,3 +21,11 @@ class IsMentorOrReadOnly(permissions.BasePermission):
                 return bool((request.user.profile.is_verified and request.user.is_mentor) or request.user.is_staff or request.user.is_superuser)
         except: return False
             
+
+
+class IsMentor(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_mentor:
+            return True
+        else: return False
+        

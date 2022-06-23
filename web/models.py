@@ -1,5 +1,3 @@
-from http.client import ACCEPTED
-from termios import PENDIN
 from django.db import models
 from django.conf import settings
 from django.db.models import Q
@@ -54,7 +52,8 @@ class Project(models.Model):
     created_at  = models.DateTimeField(auto_now_add=True)
     tag         = models.ManyToManyField(Tag, related_name='projects')
     is_active   = models.BooleanField(default=True)
-
+    user        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='my_projects')
+    
     def __str__(self) -> str:
         return self.title
 

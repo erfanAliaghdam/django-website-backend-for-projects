@@ -1,4 +1,6 @@
-from multiprocessing import context
+from webbrowser import get
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
@@ -9,7 +11,7 @@ from django.db.models import Count
 from django.conf import settings
 from .serializers import (ProjectSerializer, TagSerializer, RequestedItemsSerializer, VerificationDocSerializer)
 from ..models import Project, Tag, RequestItem, VerificationDoc
-from ..permissions import IsAdminOrReadOnly, IsMentorOrReadOnly
+from ..permissions import IsAdminOrReadOnly, IsMentorOrReadOnly, IsMentor
 
 # Create your views here.
 
@@ -17,7 +19,7 @@ from ..permissions import IsAdminOrReadOnly, IsMentorOrReadOnly
 
 
 class ProjectViewSet(ModelViewSet):
-    queryset           = Project.objects.prefetch_related('tag').all().annotate(
+    queryset           = Project.objects.prefetch_related('tag', 'user').all().annotate(
         num_tags=Count('tag')
     )
     serializer_class   = ProjectSerializer
@@ -29,7 +31,32 @@ class ProjectViewSet(ModelViewSet):
 
     def num_tags(self, obj):
         return obj.num_tags
+    def get_serializer_context(self):
+        return {'context': self.request}
     
+    @action(detail = False, methods=['GET'], permission_classes = [IsAuthenticated, IsMentor])
+    def me(self, request):
+        if request.method == 'GET':
+            project    = Project.objects.filter(user = self.request.user)
+            serializer = ProjectSerializer(project, many = True)
+            return Response(serializer.data)
+
+
+    @action(detail = False, methods=['GET', 'PUT'], permission_classes = [IsAuthenticated], url_path='me/(?P<project_id>[^/.]+)')
+    def myProjectDetail(self, request, project_id):
+        try:
+            project = Project.objects.get(user = self.request.user, pk = project_id)
+        except Project.DoesNotExist:
+            return Response(status = status.HTTP_404_NOT_FOUND)
+        if request.method == 'GET':
+            serializer = ProjectSerializer(project, read_only = True)
+            return Response(serializer.data)
+        elif request.method == 'PUT':
+            serializer = ProjectSerializer(project, data = request.data)
+            serializer.is_valid(raise_exception = True)
+            serializer.save()
+            return Response(serializer.data)
+
 
 
     # @action(detail=True, methods=['post'], url_path='request', permission_classes=[IsAuthenticated])

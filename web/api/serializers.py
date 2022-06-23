@@ -4,19 +4,27 @@ from django.conf import settings
 
 
 
-class ProjectSerializer(serializers.ModelSerializer):
-    num_tags = serializers.IntegerField(read_only = True)
-    class Meta:
-        model = Project
-        fields = ['id', 'title', 'description', 'tag', 'num_tags']
-        
-        
-
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Tag
         fields = ['id', 'name', 'color']
 
+
+class ProjectSerializer(serializers.ModelSerializer):
+    num_tags = serializers.IntegerField(read_only = True)
+    user = serializers.PrimaryKeyRelatedField(read_only = True)
+    class Meta:
+        model = Project
+        fields = ['id', 'title', 'description', 'tag', 'num_tags', 'user']
+
+
+    def create(self, validated_data):
+        validated_data.update({"user":self.context['context'].user})
+        return super().create(validated_data)
+
+
+        
+           
 
 
 class SimpleProjectSerializer(serializers.ModelSerializer):

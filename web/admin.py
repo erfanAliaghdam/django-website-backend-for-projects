@@ -60,15 +60,16 @@ class TagAdmin(admin.ModelAdmin):
 class ProjectAdmin(admin.ModelAdmin):
     model = models.Project
     prepopulated_fields = {'slug': ('title',), }
-    fields = ['title', 'slug', 'description', 'is_active', 'tag']
-    list_display = ['title', 'applied_count', 'is_active']
+    fields        = ['title', 'user', 'slug', 'description', 'is_active', 'tag']
+    list_display  = ['title', 'applied_count', 'is_active']
     search_fields = ['title', 'description', 'tag__name']
-    list_filter = [TagAutoCompleteFilter]
+    list_filter   = [TagAutoCompleteFilter]
     list_editable = ['is_active']
     filter_horizontal = ('tag',)
+    autocomplete_fields = ['user']
     # TODO : use better filters package and add search to filters box.
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('requests').annotate(
+        return super().get_queryset(request).prefetch_related('requests', 'user').annotate(
             applied_No = Count('requests')
         )
 
