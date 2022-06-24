@@ -7,7 +7,7 @@ router = DefaultRouter()
 router.register('', MessageViewSet, basename='messages')
 
 urlpatterns = [
-    path('',                    include('djoser.urls')),
-    path('auth/',               include('djoser.urls.jwt')),
-    path('messages/',           include(router.urls)),
+    path('api/auth/',               include('djoser.urls')),
+    path('api/auth/',               include('djoser.urls.jwt')),
+    path('api/messages/',           include(router.urls)),
 ]

@@ -19,6 +19,7 @@ django-admin-searchable-dropdown = "*"
 django-filter = "*"
 install = "*"
 django-cors-headers = "*"
+django-private-storage = "*"
 
 [dev-packages]
 django-admin-interface = "*"

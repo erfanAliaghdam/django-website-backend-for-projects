@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from ..models import Project, Tag, RequestedProjects, RequestItem, VerificationDoc
 from django.conf import settings
-
+from core.api.serializers import UserSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -12,7 +12,8 @@ class TagSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     num_tags = serializers.IntegerField(read_only = True)
-    user = serializers.PrimaryKeyRelatedField(read_only = True)
+    user     = UserSerializer(read_only = True)
+    tag      = TagSerializer(many = True, read_only = True)
     class Meta:
         model = Project
         fields = ['id', 'title', 'description', 'tag', 'num_tags', 'user']

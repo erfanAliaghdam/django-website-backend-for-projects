@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -32,7 +33,9 @@ INTERNAL_IPS = [
     # ...
 ]
 
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'private_storage',
     'admin_searchable_dropdown',
     'django_filters',
     'corsheaders',
@@ -150,8 +154,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
 AUTH_USER_MODEL = 'core.User'
 
 
@@ -179,8 +181,8 @@ DJOSER = {
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=5),
 }
 
 
@@ -188,3 +190,7 @@ SIMPLE_JWT = {
 #! TODO : DELETE ON DEV
 X_FRAME_OPTIONS = "SAMEORIGIN"
 SILENCED_SYSTEM_CHECKS = ["security.W019"]
+
+
+PRIVATE_STORAGE_ROOT = os.path.join(BASE_DIR, 'private-media')
+PRIVATE_STORAGE_AUTH_FUNCTION = 'private_storage.permissions.allow_staff'

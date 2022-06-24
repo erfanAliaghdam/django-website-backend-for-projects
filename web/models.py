@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.db.models import Q
 from colorfield.fields import ColorField
+from private_storage.fields import PrivateFileField
 from uuid import uuid4
 
 
@@ -37,11 +38,11 @@ class VerificationDoc(models.Model):
         (REJECTED  , 'Rejected'),
         (PENDING   , 'Pending'),
     )
-
-    user        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='VerDocs')
-    document    = models.FileField(upload_to='web/uploads')
-    created_at  = models.DateTimeField(auto_now_add=True)
-    is_accepted = models.CharField(choices=ACCEPTANCE_STATUS, max_length=10, default=PENDING)
+    
+    user                = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='VerDocs')
+    document            = PrivateFileField('File')
+    created_at          = models.DateTimeField(auto_now_add=True)
+    is_accepted         = models.CharField(choices=ACCEPTANCE_STATUS, max_length=10, default=PENDING)
 
 
 
