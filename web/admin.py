@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.urls import reverse, reverse_lazy
 from django.utils.html import format_html
 from django.db.models import Count
 from .filters import TagAutoCompleteFilter

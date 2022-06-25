@@ -16,13 +16,13 @@ class Tag(models.Model):
         return self.name
 
 class ProfileStud(models.Model):
-    user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile_stud')
     major       = models.CharField(max_length=225)
     is_verified = models.BooleanField(default=False)
     resume      = models.TextField()
     
 class ProfileMentor(models.Model):
-    user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+    user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile_mentor')
     is_verified = models.BooleanField(default=False)
 
     def __str__(self):
@@ -38,7 +38,7 @@ class VerificationDoc(models.Model):
         (REJECTED  , 'Rejected'),
         (PENDING   , 'Pending'),
     )
-    
+
     user                = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='VerDocs')
     document            = PrivateFileField('File')
     created_at          = models.DateTimeField(auto_now_add=True)

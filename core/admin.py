@@ -3,6 +3,8 @@ from django.template.defaultfilters import truncatewords
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from web.admin import TublarDocument, TublarMentor, TublarStudent
 from .models import User, Message
+from .filters import MentorVerificationFilter
+
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -21,7 +23,7 @@ class UserAdmin(BaseUserAdmin):
     #* ------------------------------
     fieldsets = (
         (None, {"fields": ("username", "password")}),
-        (("Personal info"), {"fields": ("first_name", "last_name", "phone")}),
+        (("Personal Info"), {"fields": ("first_name", "last_name", "phone")}),
         (
             ("Permissions"),
             {
@@ -38,13 +40,13 @@ class UserAdmin(BaseUserAdmin):
         (("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
     #* ------------------------------
-    list_filter = ("is_staff", "is_superuser", "is_active", "groups", "is_mentor", "profile__is_verified")
+    list_filter = ("is_staff", "is_superuser", "is_active", "groups", "is_mentor", "profile_stud__is_verified", MentorVerificationFilter)
     search_fields = ['username', 'first_name', 'last_name', 'phone']
     #* ------------------------------
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('profile')
+        return super().get_queryset(request).prefetch_related('profile_stud', 'profile_mentor')
     #* ------------------------------
-
+    
     def get_inlines(self, request, obj):
         if obj is None:
             return []

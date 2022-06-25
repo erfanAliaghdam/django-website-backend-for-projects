@@ -9,6 +9,7 @@ from web.models import RequestedProjects, ProfileMentor, ProfileStud
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_profile_for_new_user(sender, **kwargs):
+    print("----|||||*****--\|-*(<->)*-|/--****|||||----")
     if kwargs['created']:
         if kwargs['instance'].__dict__['is_mentor']:
             ProfileMentor.objects.create(user=kwargs['instance'])
