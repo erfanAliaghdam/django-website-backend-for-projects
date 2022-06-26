@@ -26,7 +26,7 @@ class ProfileMentor(models.Model):
     is_verified = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user.username
+        return str(self.user.phone)
 
 
 class VerificationDoc(models.Model):
@@ -96,5 +96,5 @@ class ApprovedItem(models.Model):
     status     = models.CharField(choices=APPROVED_STATUS, default=ACTIVE, max_length=5)
 
     def __str__(self):
-        return (str(self.parent.user.username) + str(self.project.title))
+        return (str(self.parent.user.phone) + str(self.project.title))
     

@@ -35,10 +35,10 @@ class RequestedProjectAdmin(admin.ModelAdmin):
     model = models.RequestedProjects
     readonly_fields = ['id', 'user']
     list_select_related = ['user']
-    list_display = ['username']
+    list_display = ['phone']
     inlines = [TublarRequestProjectItems]
-    def username(self, obj):
-        return obj.user.username
+    def phone(self, obj):
+        return str(obj.user.phone)
 
 @admin.register(models.Tag)
 class TagAdmin(admin.ModelAdmin):

@@ -1,20 +1,53 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser 
-from django.contrib.auth.models import UserManager
+from django.contrib.auth.models import AbstractUser, UserManager
+
+
+class BaseUserManager(UserManager):
+    def _create_user(self, phone, password, **extra_fields):
+        if not phone:
+            raise ValueError('The given phone must be set')
+        # TODO :NORMALIZE PHONE NUMBER
+        user  = self.model(phone=phone, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, phone, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(phone, password, **extra_fields)
+
+    def create_superuser(self, phone, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(phone, password, **extra_fields)
+
+
+
 
 class User(AbstractUser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        username = self._meta.get_field('username')
-        username.verbose_name = "personal id"
+    username        = models.CharField(max_length=20, unique=False)
     phone           = models.PositiveBigIntegerField(unique=True)
     is_mentor       = models.BooleanField(default=False)
-    USERNAME_FIELD  = "username"
-    REQUIRED_FIELDS = ["phone"]
-    objects = UserManager()
+    USERNAME_FIELD  = "phone"
+    REQUIRED_FIELDS = []
+
+    objects = BaseUserManager()
     def __str__(self) -> str:
-        return (self.username + " : " + str(self.first_name))
-        
+        return (str(self.phone) + " : " + str(self.first_name))
+
+
+
+
+
 class Message(models.Model):
     ALERT = 'A'
     WARNING = 'W'

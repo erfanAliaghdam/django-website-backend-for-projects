@@ -14,16 +14,16 @@ class UserAdmin(BaseUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("username", "password1", "password2", "phone", "first_name", "last_name", "is_mentor"),
+                "fields": ("password1", "password2", "phone", "first_name", "last_name", "is_mentor"),
             },
         ),
     )
     #* ------------------------------
-    list_display = ("username", "is_mentor", "phone", "first_name", "last_name")
+    list_display = ("phone", "is_mentor" , "first_name", "last_name")
     #* ------------------------------
     fieldsets = (
-        (None, {"fields": ("username", "password")}),
-        (("Personal Info"), {"fields": ("first_name", "last_name", "phone")}),
+        (None, {"fields": ("phone", "password")}),
+        (("Personal Info"), {"fields": ("first_name", "last_name")}),
         (
             ("Permissions"),
             {
@@ -41,7 +41,7 @@ class UserAdmin(BaseUserAdmin):
     )
     #* ------------------------------
     list_filter = ("is_staff", "is_superuser", "is_active", "groups", "is_mentor", "profile_stud__is_verified", MentorVerificationFilter)
-    search_fields = ['username', 'first_name', 'last_name', 'phone']
+    search_fields = ['first_name', 'last_name', 'phone']
     #* ------------------------------
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('profile_stud', 'profile_mentor')
@@ -61,7 +61,7 @@ class UserAdmin(BaseUserAdmin):
 class MessageAdmin(admin.ModelAdmin):
     list_display        = ("id", "message_type", "send_time", "get_message")
     list_filter         = ("message_type", "send_time")
-    search_fields       = ("reciever__username", "reciever__first_name", "reciever__last_name")
+    search_fields       = ("reciever__phone", "reciever__first_name", "reciever__last_name")
     autocomplete_fields = ['reciever']
     def get_message(self, obj):
         return truncatewords(obj.message, 10)

@@ -172,11 +172,12 @@ REST_FRAMEWORK={
 
 
 DJOSER = {
+    'LOGIN_FIELD': 'email',
+    "USERNAME_FIELD": "phone",
     'SERIALIZERS':{
         'user_create'  : 'core.api.serializers.UserCreateSerializer',
         'current_user' : 'core.api.serializers.UserSerializer',
     },
-    
 }
 
 SIMPLE_JWT = {
@@ -194,3 +195,9 @@ SILENCED_SYSTEM_CHECKS = ["security.W019"]
 
 PRIVATE_STORAGE_ROOT = os.path.join(BASE_DIR, 'private-media')
 PRIVATE_STORAGE_AUTH_FUNCTION = 'private_storage.permissions.allow_staff'
+
+
+
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
