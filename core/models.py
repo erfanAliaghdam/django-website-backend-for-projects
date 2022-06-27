@@ -1,12 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, UserManager
-
+from django.core.validators import RegexValidator
 
 class BaseUserManager(UserManager):
+        
     def _create_user(self, phone, password, **extra_fields):
         if not phone:
             raise ValueError('The given phone must be set')
-        # TODO :NORMALIZE PHONE NUMBER
         user  = self.model(phone=phone, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -34,17 +34,16 @@ class BaseUserManager(UserManager):
 class User(AbstractUser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-    username        = models.CharField(max_length=20, unique=False)
-    phone           = models.PositiveBigIntegerField(unique=True)
-    is_mentor       = models.BooleanField(default=False)
-    USERNAME_FIELD  = "phone"
-    REQUIRED_FIELDS = []
+    phoneNumberRegex = RegexValidator(regex = r"^\+?1?\d{10,11}$")
+    username         = models.CharField(max_length=20, unique=False)
+    phone            = models.CharField(unique=True, validators=[phoneNumberRegex], max_length=11)
+    is_mentor        = models.BooleanField(default=False)
+    USERNAME_FIELD   = "phone"
+    REQUIRED_FIELDS  = []
 
     objects = BaseUserManager()
     def __str__(self) -> str:
         return (str(self.phone) + " : " + str(self.first_name))
-
-
 
 
 

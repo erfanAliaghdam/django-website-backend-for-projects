@@ -1,7 +1,9 @@
-from djoser.serializers import UserSerializer as BaseUserSerializer, UserCreateSerializer as BaseUserCreateSerializer
+from djoser.serializers import (UserSerializer as BaseUserSerializer,
+                                 UserCreateSerializer as BaseUserCreateSerializer)
 from rest_framework import serializers
 from ..models import Message
-from django.db import IntegrityError
+
+
 
 class UserSerializer(BaseUserSerializer):
     class Meta(BaseUserSerializer.Meta):
