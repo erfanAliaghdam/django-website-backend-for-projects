@@ -49,7 +49,9 @@ class User(AbstractUser):
     username         = models.CharField(max_length=20, unique=False)
     phone            = models.CharField(unique=True, validators=[phoneNumberRegex, phone_validator], max_length=11)
     is_mentor        = models.BooleanField(default=False)
+    otpCode          = models.CharField(max_length=6, blank=True, null=True)
     otp_activated    = models.BooleanField(default=False)
+    otpExpire        = models.DateTimeField(auto_now=True)
     USERNAME_FIELD   = "phone"
     REQUIRED_FIELDS  = []
 

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'rest_framework',
+    'smsServices',
     'djoser',
     'debug_toolbar',
     'core',
@@ -201,3 +202,16 @@ PRIVATE_STORAGE_AUTH_FUNCTION = 'private_storage.permissions.allow_staff'
 
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
+
+BROKER_URL = 'redis://localhost:6379/2'
+CELERY_BROKER_URL = 'redis://localhost:6379/2'
+# CELERY_BEAT_SCHEDULE={
+#     'notify_customers':{
+#         'task':'core.tasks.notify_customers',
+#         'schedule': crontab(minute=1),
+#         'args':['hello world'],
+#     }
+# }
+
+
+EXPIRE_CODE_AFTER_MINUTES = 3

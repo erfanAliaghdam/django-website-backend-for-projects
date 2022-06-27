@@ -20,6 +20,10 @@ django-filter = "*"
 install = "*"
 django-cors-headers = "*"
 django-private-storage = "*"
+celery = "*"
+flower = "*"
+pyotp = "*"
+redis = "*"
 
 [dev-packages]
 django-admin-interface = "*"

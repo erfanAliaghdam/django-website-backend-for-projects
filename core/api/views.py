@@ -7,7 +7,9 @@ from ..permissions import IsAdminOrReadOnly
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework.exceptions import ValidationError
-import json
+from smsServices.tasks import send_sms
+from datetime import datetime
+from django.utils import timezone
 
 # Create your views here.
 
@@ -22,7 +24,7 @@ class MessageViewSet(ModelViewSet):
 class CreateTokenViewSet(ModelViewSet):
     serializer_class   = CreateTokenSerializer
     http_method_names  = ['post']
-
+    queryset           = User.objects.none()
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -30,7 +32,11 @@ class CreateTokenViewSet(ModelViewSet):
         phone = serializer.validated_data['phone']        
         try:
             user = User.objects.get(phone=phone)
-            if not user.otp_verified:
+            if (not user.otp_activated) and user.otpExpire < timezone.now():
+                print('!-----<***||-o-||***>----!')
+                print(send_sms.delay(phone))
+                print('!-----<***||-o-||***>----!')
+                # print(vars(user))
                 # TODO will check otp verification time and send otp again if time is expired
                 raise ValidationError('User already is not verified')
             refresh = RefreshToken.for_user(user)
