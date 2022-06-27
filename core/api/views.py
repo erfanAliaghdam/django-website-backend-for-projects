@@ -38,7 +38,7 @@ class CreateTokenViewSet(ModelViewSet):
                 print('!-----<***||-o-||***>----!')
                 # print(vars(user))
                 # TODO will check otp verification time and send otp again if time is expired
-                raise ValidationError('User already is not verified')
+                raise ValidationError('otp code sent !. please check your phone')
             refresh = RefreshToken.for_user(user)
 
             response =  {
