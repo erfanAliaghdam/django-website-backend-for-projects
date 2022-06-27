@@ -17,9 +17,9 @@ class Tag(models.Model):
 
 class ProfileStud(models.Model):
     user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile_stud')
-    major       = models.CharField(max_length=225)
+    major       = models.CharField(max_length=225, blank = True)
     is_verified = models.BooleanField(default=False)
-    resume      = models.TextField()
+    resume      = models.TextField(blank = True)
     
 class ProfileMentor(models.Model):
     user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile_mentor')

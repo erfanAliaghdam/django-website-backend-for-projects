@@ -1,9 +1,14 @@
-from django.shortcuts import render
-from .serializers import MessageSerializer
+from rest_framework.response import Response
+from .serializers import MessageSerializer, CreateTokenSerializer
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from ..models import Message
+from ..models import Message, User
 from ..permissions import IsAdminOrReadOnly
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework.exceptions import ValidationError
+import json
+
 # Create your views here.
 
 class MessageViewSet(ModelViewSet):
@@ -12,3 +17,29 @@ class MessageViewSet(ModelViewSet):
     
     def get_queryset(self):
         return Message.objects.filter(reciever=self.request.user).all()
+
+
+class CreateTokenViewSet(ModelViewSet):
+    serializer_class   = CreateTokenSerializer
+    http_method_names  = ['post']
+
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        phone = serializer.validated_data['phone']        
+        try:
+            user = User.objects.get(phone=phone)
+            if not user.otp_verified:
+                # TODO will check otp verification time and send otp again if time is expired
+                raise ValidationError('User already is not verified')
+            refresh = RefreshToken.for_user(user)
+
+            response =  {
+                            'refresh': str(refresh),
+                            'access' : str(refresh.access_token),
+                        }
+            return Response(response)
+            
+        except User.DoesNotExist:
+            raise ValidationError("User does not exist")
