@@ -78,7 +78,7 @@ class RequestedItemsViewSet(ModelViewSet):
 class VerificationViewSet(ModelViewSet):
     serializer_class = VerificationDocSerializer
     permission_classes=[IsAuthenticated]
-
+    http_method_names = ['get', 'post']
     def get_queryset(self):
         return VerificationDoc.objects.select_related('user').filter(user = self.request.user).all()
 
