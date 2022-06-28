@@ -6,15 +6,19 @@ from core.models import User
 @receiver(post_save, sender=VerificationDoc)
 def Verify_if_All_Docs_Are_Accepted(sender, **kwargs):
     print("***$$$$$$$$$$$$$$***")
-    user = User.objects.prefetch_related('VerDocs', 'profile').get(pk=kwargs['instance'].user.id)
-    if not user.profile.is_verified:
-        if user.VerDocs.filter(is_accepted=VerificationDoc.ACCEPTED).count() == user.VerDocs.count():
-            user.profile.is_verified = True
-            user.profile.save()
-            print("-----automatically: VerificationDoc-----")
+    try: 
+        user = User.objects.prefetch_related('VerDocs', 'profile_mentor').get(pk=kwargs['instance'].user.id)
+        if not user.profile_mentor.is_verified:
+            if user.VerDocs.filter(is_accepted=VerificationDoc.ACCEPTED).count() == user.VerDocs.count():
+                user.profile_mentor.is_verified = True
+                user.profile_mentor.save()
+                print("-----automatically: VerificationDoc-----")
 
-    else:
-        if user.VerDocs.filter(is_accepted=VerificationDoc.ACCEPTED).count() != user.VerDocs.count():
-            user.profile.is_verified = False
-            user.profile.save()
-            print("-----automatically: VerificationDoc-----")
+    except:
+        user = User.objects.prefetch_related('VerDocs', 'profile_stud').get(pk=kwargs['instance'].user.id)
+        if not user.profile_stud.is_verified:
+            if user.VerDocs.filter(is_accepted=VerificationDoc.ACCEPTED).count() == user.VerDocs.count():
+                user.profile_stud.is_verified = True
+                user.profile_stud.save()
+                print("-----automatically: VerificationDoc-----")
+

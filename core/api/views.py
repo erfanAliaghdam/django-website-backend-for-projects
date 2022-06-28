@@ -9,10 +9,9 @@ from ..permissions import IsAdminOrReadOnly
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import ValidationError
 from smsServices.tasks import send_sms
-from django.utils import timezone
 from rest_framework.decorators import action
 from rest_framework import status
-from datetime import datetime, timezone
+from datetime import datetime
 
 class MessageViewSet(ModelViewSet):
     serializer_class   = MessageSerializer
