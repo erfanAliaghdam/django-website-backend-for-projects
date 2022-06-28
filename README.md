@@ -10,5 +10,5 @@ with this website every intern or student can apply for projects from verified c
 <image src="./core.png" />
 
 
-<h2>Core App</h2>
+<h2>Web App</h2>
 <image src="./web.png" />
