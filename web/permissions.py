@@ -25,7 +25,7 @@ class IsMentorOrReadOnly(permissions.BasePermission):
 
 class IsMentor(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.user.is_mentor and request.user.profile.is_verified:
+        if request.user.is_mentor and request.user.profile_mentor.is_verified:
             return True
         else: return False
         
