@@ -30,5 +30,13 @@ class MessageSerializer(serializers.ModelSerializer):
 class CreateTokenSerializer(serializers.Serializer):
     phone = serializers.CharField()
     class Meta:
-        model = User
+        model  = User
         fields = ['phone']
+
+
+class SendOtpSerializer(serializers.Serializer):
+    phone = serializers.CharField()
+    otp = serializers.CharField(max_length=6)
+    class Meta:
+        model  = User
+        fields = ['otpCode', 'phone']

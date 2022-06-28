@@ -17,5 +17,4 @@ def send_sms(phone):
     user.otpExpire = timezone.now() + timedelta(minutes = settings.EXPIRE_CODE_AFTER_MINUTES)
     user.otpCode   = str(otp)
     user.save()
-    
     return str(otp)

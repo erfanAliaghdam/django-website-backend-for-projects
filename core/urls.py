@@ -7,11 +7,11 @@ router = DefaultRouter()
 router.register('', MessageViewSet, basename='messages')
 
 routerToken = DefaultRouter()
-routerToken.register('', CreateTokenViewSet, basename='create')
+routerToken.register('create/token', CreateTokenViewSet, basename='create-token')
 
 urlpatterns = [
     path('api/auth/',               include('djoser.urls')),
     path('api/auth/',               include('djoser.urls.jwt')),
     path('api/messages/',           include(router.urls)),
-    path('api/auth/create/token/',  include(routerToken.urls)),
+    path('api/auth/',               include(routerToken.urls)),
 ]

@@ -1,5 +1,3 @@
-from webbrowser import get
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -8,10 +6,9 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from django.db.models import Count
-from django.conf import settings
 from .serializers import (ProjectSerializer, TagSerializer, RequestedItemsSerializer, VerificationDocSerializer)
 from ..models import Project, Tag, RequestItem, VerificationDoc
-from ..permissions import IsAdminOrReadOnly, IsMentorOrReadOnly, IsMentor
+from ..permissions import IsMentorOrReadOnly, IsMentor
 
 # Create your views here.
 
