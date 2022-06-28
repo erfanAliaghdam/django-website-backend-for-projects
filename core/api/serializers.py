@@ -40,3 +40,11 @@ class SendOtpSerializer(serializers.Serializer):
     class Meta:
         model  = User
         fields = ['otpCode', 'phone']
+
+
+class SignUpOtpSerializer(serializers.Serializer):
+    phone = serializers.CharField()
+    class Meta:
+        model  = User
+        fields = ['otpCode', 'phone', 'password']
+
