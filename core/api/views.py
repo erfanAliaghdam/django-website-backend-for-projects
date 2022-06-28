@@ -21,13 +21,15 @@ class MessageViewSet(ModelViewSet):
         return Message.objects.filter(reciever=self.request.user).all()
 
 
-class CreateTokenViewSet(ModelViewSet):
-    http_method_names  = ['get', 'post', 'put']
+class AuthTokenViewSet(ModelViewSet):
+    http_method_names  = ['get', 'post']
     queryset           = User.objects.none()
     serializer_class   = CreateTokenSerializer
 
-
-    def create(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
+        return Response({'actions helper' : 'login, signup, otp'})
+    @action(detail=False, methods=['POST'], url_name='otp-login', serializer_class=CreateTokenSerializer)
+    def login(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone = serializer.validated_data['phone']        
