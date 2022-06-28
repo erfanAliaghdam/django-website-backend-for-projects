@@ -18,14 +18,16 @@ class IsMentorOrReadOnly(permissions.BasePermission):
             return True
         try:
             if request.user.is_authenticated and request.user.is_mentor:
-                return bool((request.user.profile_stud.is_verified) or request.user.is_staff or request.user.is_superuser)
+                return bool((request.user.profile_mentor.is_verified) or request.user.is_staff or request.user.is_superuser)
         except: return False
             
 
 
 class IsMentor(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.user.is_mentor and request.user.profile_mentor.is_verified:
-            return True
-        else: return False
+        try: 
+            if request.user.profile_mentor.is_verified:
+                return True
+            else: return False
+        except: return False
         
