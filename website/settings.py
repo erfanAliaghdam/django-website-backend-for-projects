@@ -178,6 +178,12 @@ DJOSER = {
     'SERIALIZERS':{
         'user_create'  : 'core.api.serializers.UserCreateSerializer',
         'current_user' : 'core.api.serializers.UserSerializer',
+        'user_delete': ['rest_framework.permissions.IsAdminUser'],
+        'set_phone'  : ['rest_framework.permissions.IsAdminUser'],
+        'set_email'  : ['rest_framework.permissions.IsAdminUser'],
+        'reset_password' : ['rest_framework.permissions.IsAdminUser'],
+        'activation' : ['rest_framework.permissions.IsAdminUser'],
+        'set_password' : ['rest_framework.permissions.IsAdminUser'],
     },
 }
 
