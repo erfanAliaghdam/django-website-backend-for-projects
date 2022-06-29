@@ -1,8 +1,11 @@
-from django.forms import ChoiceField, ValidationError
+from django.forms import ChoiceField
 from rest_framework import serializers, status
 from ..models import Project, Tag, RequestedProjects, RequestItem, VerificationDoc
 from django.contrib.auth import get_user_model
 from core.api.serializers import UserSerializer
+
+
+
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,9 +51,7 @@ class RequestedItemsSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         project_id    = validated_data.pop('project_id')
         appliedNo     = RequestItem.objects.select_related('project').filter(project__id = project_id, status=RequestItem.APPROVED).count()
-        print(appliedNo)
         admissionNo   = Project.objects.filter(pk = project_id).values()[0]['admissionNo']
-        print(admissionNo)
         if admissionNo <= appliedNo:
             raise serializers.ValidationError('Admission is over, try another project', code = status.HTTP_400_BAD_REQUEST)
         #* if request parent doesnt exists od created accidently this try-except block will create new one
@@ -87,15 +88,16 @@ class SimplaUserSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'resume']
 
 class AcceptProjectSerializer(serializers.ModelSerializer):
-    status       = ChoiceField(choices = RequestItem.STATUS, required = True)
-    project      = SimpleProjectSerializer(read_only = True)
-    project_id   = serializers.IntegerField(read_only = True)
-    user         = serializers.SerializerMethodField(read_only = True)
-    
+    status              = ChoiceField(choices = RequestItem.STATUS, required = True)
+    project             = SimpleProjectSerializer(read_only = True)
+    project_id          = serializers.IntegerField(read_only = True)
+    user                = serializers.SerializerMethodField(read_only = True)
+    message_from_mentor = serializers.CharField(required = True)
+
     def get_user(self, obj):
         return SimplaUserSerializer(obj.parent.user).data
 
     class Meta:
         model  = RequestItem
-        fields = ['id', 'project',  'status', 'project_id', 'user']
+        fields = ['id', 'project',  'status', 'project_id', 'user', 'message_from_mentor']
 
