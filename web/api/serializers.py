@@ -1,5 +1,5 @@
-from django.forms import ChoiceField
-from rest_framework import serializers
+from django.forms import ChoiceField, ValidationError
+from rest_framework import serializers, status
 from ..models import Project, Tag, RequestedProjects, RequestItem, VerificationDoc
 from django.contrib.auth import get_user_model
 from core.api.serializers import UserSerializer
@@ -11,12 +11,13 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    num_tags = serializers.IntegerField(read_only = True)
-    user     = UserSerializer(read_only = True)
-    tag      = TagSerializer(many = True, read_only = True)
+    num_tags     = serializers.IntegerField(read_only = True)
+    user         = UserSerializer(read_only = True)
+    tag          = TagSerializer(many = True, read_only = True)
+    admissionNo  = serializers.IntegerField(required = True)
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'tag', 'num_tags', 'user']
+        fields = ['id', 'title', 'description', 'tag', 'num_tags', 'user', 'admissionNo']
 
 
     def create(self, validated_data):
@@ -45,7 +46,13 @@ class RequestedItemsSerializer(serializers.ModelSerializer):
     
 
     def create(self, validated_data):
-        project_id = validated_data.pop('project_id')
+        project_id    = validated_data.pop('project_id')
+        appliedNo     = RequestItem.objects.select_related('project').filter(project__id = project_id, status=RequestItem.APPROVED).count()
+        print(appliedNo)
+        admissionNo   = Project.objects.filter(pk = project_id).values()[0]['admissionNo']
+        print(admissionNo)
+        if admissionNo <= appliedNo:
+            raise serializers.ValidationError('Admission is over, try another project', code = status.HTTP_400_BAD_REQUEST)
         #* if request parent doesnt exists od created accidently this try-except block will create new one
         try:
             request_parent = RequestedProjects.objects.get(user = self.context['request'].user)

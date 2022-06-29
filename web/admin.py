@@ -37,6 +37,8 @@ class RequestedProjectAdmin(admin.ModelAdmin):
     list_select_related = ['user']
     list_display = ['phone']
     inlines = [TublarRequestProjectItems]
+    search_fields = ['user__phone']
+
     def phone(self, obj):
         return str(obj.user.phone)
 
@@ -59,8 +61,8 @@ class TagAdmin(admin.ModelAdmin):
 class ProjectAdmin(admin.ModelAdmin):
     model = models.Project
     prepopulated_fields = {'slug': ('title',), }
-    fields        = ['title', 'user', 'slug', 'description', 'is_active', 'tag']
-    list_display  = ['title', 'applied_count', 'is_active']
+    fields        = ['title', 'user', 'slug', 'admissionNo', 'description', 'is_active', 'tag']
+    list_display  = ['title', 'applied_count', 'admissionNo', 'is_active']
     search_fields = ['title', 'description', 'tag__name']
     list_filter   = [TagAutoCompleteFilter]
     list_editable = ['is_active']

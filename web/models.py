@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-from django.db.models import Q
 from colorfield.fields import ColorField
 from private_storage.fields import PrivateFileField
 from uuid import uuid4
@@ -46,14 +45,15 @@ class VerificationDoc(models.Model):
 
 
 class Project(models.Model):
-    title       = models.CharField(max_length=250)
-    slug        = models.SlugField(auto_created=True)
-    description = models.TextField()
-    created_at  = models.DateTimeField(auto_now_add=True)
-    tag         = models.ManyToManyField(Tag, related_name='projects')
-    is_active   = models.BooleanField(default=True)
-    user        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='my_projects')
-    
+    title        = models.CharField(max_length=250)
+    slug         = models.SlugField(auto_created=True)
+    description  = models.TextField()
+    created_at   = models.DateTimeField(auto_now_add=True)
+    tag          = models.ManyToManyField(Tag, related_name='projects')
+    is_active    = models.BooleanField(default=True)
+    user         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='my_projects')
+    admissionNo  = models.PositiveIntegerField(default=1)
+
     def __str__(self) -> str:
         return self.title
 
