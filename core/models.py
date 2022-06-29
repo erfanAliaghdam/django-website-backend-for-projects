@@ -52,6 +52,7 @@ class User(AbstractUser):
     otpCode          = models.CharField(max_length=6, blank=True, null=True)
     otp_activated    = models.BooleanField(default=False)
     otpExpire        = models.DateTimeField(auto_now=True)
+    resume           = models.TextField(blank=True)
     USERNAME_FIELD   = "phone"
     REQUIRED_FIELDS  = []
 
@@ -76,5 +77,7 @@ class Message(models.Model):
     message      = models.TextField()
     send_time    = models.DateTimeField(auto_now_add=True)
     message_type = models.CharField(choices=MESSAGE_TYPE_CHOICES, default=NOTIFY, max_length=5)
-    
+
+
+
 

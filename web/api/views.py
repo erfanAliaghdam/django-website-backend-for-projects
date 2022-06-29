@@ -5,9 +5,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
+
 from django.db.models import Count
-from .serializers import (ProjectSerializer, TagSerializer, RequestedItemsSerializer, VerificationDocSerializer)
+from .serializers import (ProjectSerializer, TagSerializer,
+                             RequestedItemsSerializer, VerificationDocSerializer,
+                             AcceptProjectSerializer)
 from ..models import Project, Tag, RequestItem, VerificationDoc
+
 from ..permissions import IsMentorOrReadOnly, IsMentor
 
 # Create your views here.
@@ -55,17 +59,10 @@ class ProjectViewSet(ModelViewSet):
             return Response(serializer.data)
 
 
-
-    # @action(detail=True, methods=['post'], url_path='request', permission_classes=[IsAuthenticated])
-    # def request_project(self, request, *args, **kwargs):
-    #     project = self.get_object()
-    #     print(project)
-
 class TagViewSet(ReadOnlyModelViewSet):
     queryset         = Tag.objects.all()
     serializer_class = TagSerializer
     
- 
 
 class RequestedItemsViewSet(ModelViewSet):
     serializer_class = RequestedItemsSerializer
@@ -74,7 +71,6 @@ class RequestedItemsViewSet(ModelViewSet):
     def get_queryset(self):
         return RequestItem.objects.select_related('project', 'parent').filter(parent__user = self.request.user).all()
 
-
 class VerificationViewSet(ModelViewSet):
     serializer_class = VerificationDocSerializer
     permission_classes=[IsAuthenticated]
@@ -82,3 +78,12 @@ class VerificationViewSet(ModelViewSet):
     def get_queryset(self):
         return VerificationDoc.objects.select_related('user').filter(user = self.request.user).all()
 
+class AcceptRequestsViewSet(ModelViewSet):
+    serializer_class   = AcceptProjectSerializer
+    permission_classes = [IsAuthenticated, IsMentor]
+    http_method_names  = ['get', 'put']
+    def get_queryset(self):
+        return RequestItem.objects.select_related('project', 'parent__user').filter(project__user = self.request.user).all()
+    
+    def get_serializer_context(self):
+        return {'context': self.request}

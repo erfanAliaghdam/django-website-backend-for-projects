@@ -1,8 +1,8 @@
+from django.forms import ChoiceField
 from rest_framework import serializers
 from ..models import Project, Tag, RequestedProjects, RequestItem, VerificationDoc
-from django.conf import settings
+from django.contrib.auth import get_user_model
 from core.api.serializers import UserSerializer
-
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -72,4 +72,23 @@ class VerificationDocSerializer(serializers.ModelSerializer):
         fields = ['id', 'document', 'is_accepted']
     def create(self, validated_data):
         verification_doc = VerificationDoc.objects.create(user = self.context['request'].user, document = validated_data['document'])
-        return verification_doc      
+        return verification_doc   
+
+class SimplaUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = get_user_model()
+        fields = ['first_name', 'last_name', 'resume']
+
+class AcceptProjectSerializer(serializers.ModelSerializer):
+    status       = ChoiceField(choices = RequestItem.STATUS, required = True)
+    project      = SimpleProjectSerializer(read_only = True)
+    project_id   = serializers.IntegerField(read_only = True)
+    user         = serializers.SerializerMethodField(read_only = True)
+    
+    def get_user(self, obj):
+        return SimplaUserSerializer(obj.parent.user).data
+
+    class Meta:
+        model  = RequestItem
+        fields = ['id', 'project',  'status', 'project_id', 'user']
+

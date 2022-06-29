@@ -19,7 +19,6 @@ class ProfileStud(models.Model):
     user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile_stud')
     major       = models.CharField(max_length=225, blank = True)
     is_verified = models.BooleanField(default=False)
-    resume      = models.TextField(blank = True)
     
 class ProfileMentor(models.Model):
     user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile_mentor')
@@ -78,23 +77,24 @@ class RequestItem(models.Model):
     status  = models.CharField(max_length=5, choices=STATUS, default=PENDING)
 
 
-class ApprovedRequest(models.Model):
-    user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+# class ApprovedRequest(models.Model):
+#     user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
-class ApprovedItem(models.Model):
-    ACTIVE   = 'A'
-    CANCELED = 'C'
-    PASSED   = 'P'
-    APPROVED_STATUS = (
-        (ACTIVE, 'Active'),
-        (CANCELED, 'Canceled'),
-        (PASSED, 'Passed'),
-    )
-    parent     = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT, related_name='items')
-    project    = models.ForeignKey(Project, on_delete=models.PROTECT)
-    created_at = models.DateTimeField(auto_now_add=True)
-    status     = models.CharField(choices=APPROVED_STATUS, default=ACTIVE, max_length=5)
-
-    def __str__(self):
-        return (str(self.parent.user.phone) + str(self.project.title))
+# class ApprovedItem(models.Model):
+#     ACTIVE   = 'A'
+#     CANCELED = 'C'
+#     PASSED   = 'P'
+#     APPROVED_STATUS = (
+#         (ACTIVE, 'Active'),
+#         (CANCELED, 'Canceled'),
+#         (PASSED, 'Passed'),
+#     )
+#     parent              = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT, related_name='items')
+#     project             = models.ForeignKey(Project, on_delete=models.PROTECT)
+#     created_at          = models.DateTimeField(auto_now_add=True)
+#     status              = models.CharField(choices=APPROVED_STATUS, default=ACTIVE, max_length=5)
+#     message_from_mentor = models.TextField(blank=True)
+#     def __str__(self):
+#         return (str(self.parent.user.phone) + str(self.project.title))
     
+

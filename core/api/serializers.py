@@ -7,7 +7,7 @@ from ..models import Message, User
 
 class UserSerializer(BaseUserSerializer):
     class Meta(BaseUserSerializer.Meta):
-        fields = ['id', 'first_name', 'last_name', 'phone', 'is_mentor']
+        fields = ['id', 'first_name', 'last_name', 'phone', 'is_mentor', 'resume']
         
 
 

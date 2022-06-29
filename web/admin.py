@@ -76,21 +76,5 @@ class ProjectAdmin(admin.ModelAdmin):
         return obj.applied_No
 
 
-class ApprovedItemTublar(admin.TabularInline):
-    model = models.ApprovedItem
-    extra = 0
-    autocomplete_fields = ['project']
 
-
-
-@admin.register(models.ApprovedRequest)
-class ApprovedRequest(admin.ModelAdmin):
-    model        = models.ApprovedRequest
-    list_display = ['user']
-    inlines      = [ApprovedItemTublar]
-    list_filter  = ('items__status',)
-    list_display_links = ['user']
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('items')
 
