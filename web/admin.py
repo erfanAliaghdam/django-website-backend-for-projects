@@ -33,11 +33,12 @@ class TublarRequestProjectItems(admin.TabularInline):
 @admin.register(models.RequestedProjects)
 class RequestedProjectAdmin(admin.ModelAdmin):
     model = models.RequestedProjects
-    readonly_fields = ['id', 'user']
+    readonly_fields = ['id']
     list_select_related = ['user']
     list_display = ['phone']
     inlines = [TublarRequestProjectItems]
     search_fields = ['user__phone']
+    autocomplete_fields = ['user']
 
     def phone(self, obj):
         return str(obj.user.phone)
@@ -63,7 +64,7 @@ class ProjectAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',), }
     fields        = ['title', 'user', 'slug', 'admissionNo', 'description', 'is_active', 'tag']
     list_display  = ['title', 'applied_count', 'admissionNo', 'is_active']
-    search_fields = ['title', 'description', 'tag__name']
+    search_fields = ['title', 'description', 'tag__name', 'user__phone']
     list_filter   = [TagAutoCompleteFilter]
     list_editable = ['is_active']
     filter_horizontal = ('tag',)
@@ -99,7 +100,7 @@ class ApprovedRequestAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user').prefetch_related('items').annotate(
             proj_count = Count('items'),
-            active_proj_count = Count('items__status', filter=Q(items__status=models.ApprovedItem.ACTIVE))
+            active_proj_count = Count('items__status', filter=Q(items__status=models.ApprovedItem.APPROVE))
         )
 
     def project_count(self, obj):

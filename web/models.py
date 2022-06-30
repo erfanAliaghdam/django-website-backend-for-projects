@@ -64,12 +64,12 @@ class RequestedProjects(models.Model):
 
 class RequestItem(models.Model):
     PENDING  = 'p'
-    APPROVED = 'A'
-    REJECTED = 'R'
+    APPROVE  = 'A'
+    REJECT = 'R'
     STATUS =(
         (PENDING, 'Pending'),
-        (APPROVED, 'Approved'),
-        (REJECTED, 'Rejected'),
+        (APPROVE, 'Approve'),
+        (REJECT, 'Reject'),
     )
     parent  = models.ForeignKey(RequestedProjects, on_delete=models.PROTECT, related_name='items')
     # TODO on delete project send email or sms to user
@@ -81,18 +81,18 @@ class ApprovedRequest(models.Model):
     user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='approved_projects_cart')
 
 class ApprovedItem(models.Model):
-    ACTIVE   = 'A'
-    CANCELED = 'C'
+    APPROVE   = 'A'
+    REJECT = 'R'
     PASSED   = 'P'
     APPROVED_STATUS = (
-        (ACTIVE, 'Active'),
-        (CANCELED, 'Canceled'),
+        (APPROVE, 'Active'),
+        (REJECT, 'REJECTED'),
         (PASSED, 'Passed'),
     )
     parent              = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT, related_name='items', verbose_name='user_cart')
     project             = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='approved_projects')
     created_at          = models.DateTimeField(auto_now_add=True)
-    status              = models.CharField(choices=APPROVED_STATUS, default=ACTIVE, max_length=5)
+    status              = models.CharField(choices=APPROVED_STATUS, default=APPROVE, max_length=5)
     message_from_mentor = models.TextField(blank=True)
     def __str__(self):
         return (str(self.parent.user.phone) + str(self.project.title))

@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework import status, mixins
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, GenericViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
@@ -75,14 +75,14 @@ class RequestedItemsViewSet(ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         objStatus     = RequestItem.objects.select_related('parent').filter(pk = self.kwargs['pk']).values('status')[0]['status']
-        if objStatus == RequestItem.APPROVED:
+        if objStatus == RequestItem.APPROVE:
             raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'You cannot delete an approved request')
         return super().destroy(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         if 'project_id' not in request.data:
             raise ValidationError(code = status.HTTP_400_BAD_REQUEST, detail = 'Project ID is required')
-        if ApprovedItem.objects.select_related('parent').filter(parent__user = self.request.user, status = ApprovedItem.ACTIVE).count() >= int(settings.MAX_ACCEPTED_APPLY_NO):
+        if ApprovedItem.objects.select_related('parent').filter(parent__user = self.request.user, status = ApprovedItem.APPROVE).count() >= int(settings.MAX_ACCEPTED_APPLY_NO):
             raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'You cannot apply for more projects, because you have already ' + str(settings.MAX_ACCEPTED_APPLY_NO) + ' approved active projects')
         return super().create(request, *args, **kwargs)
 
@@ -116,16 +116,17 @@ class AcceptRequestsViewSet(ModelViewSet):
         if request.method == 'GET':
             serializer = AcceptProjectSerializerReadOnly(self.get_object())
             return Response(serializer.data)
+            
         print('-----||||-----')
         student = self.get_object().parent.user
         project = self.get_object().project
 
-        student_active_approved_count = ApprovedRequest.objects.filter(user = student, items__status = ApprovedItem.ACTIVE).count()
+        student_active_approved_count = ApprovedRequest.objects.filter(user = student, items__status = ApprovedItem.APPROVE).count()
         if student_active_approved_count >= int(settings.MAX_ACCEPTED_APPLY_NO):
             raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'this user has ' + str(settings.MAX_ACCEPTED_APPLY_NO) + ' active projects choose another student.')
         
         
-        active_approved_count = ApprovedItem.objects.filter(project = project, status = ApprovedItem.ACTIVE).count()
+        active_approved_count = ApprovedItem.objects.filter(project = project, status = ApprovedItem.APPROVE).count()
         if project.admissionNo <= active_approved_count:
             raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'Project is full')
 
@@ -134,5 +135,7 @@ class AcceptRequestsViewSet(ModelViewSet):
         else: parent = student.approved_projects_cart
         
         ApprovedItem.objects.create(parent = parent, project = project)
-
+        obj = self.get_object()
+        obj.status = RequestItem.APPROVE
+        obj.save()
         return Response(status = status.HTTP_201_CREATED)
