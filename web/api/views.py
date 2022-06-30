@@ -82,8 +82,8 @@ class RequestedItemsViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         if 'project_id' not in request.data:
             raise ValidationError(code = status.HTTP_400_BAD_REQUEST, detail = 'Project ID is required')
-        if RequestItem.objects.select_related('parent').filter(parent__user = self.request.user, status = RequestItem.APPROVED).count() >= int(settings.MAX_ACCEPTED_APPLY_NO):
-            raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'You cannot apply for more projects, because you have already ' + str(settings.MAX_ACCEPTED_APPLY_NO) + ' approved projects')
+        if ApprovedItem.objects.select_related('parent').filter(parent__user = self.request.user, status = ApprovedItem.ACTIVE).count() >= int(settings.MAX_ACCEPTED_APPLY_NO):
+            raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'You cannot apply for more projects, because you have already ' + str(settings.MAX_ACCEPTED_APPLY_NO) + ' approved active projects')
         return super().create(request, *args, **kwargs)
 
 class VerificationViewSet(ModelViewSet):
