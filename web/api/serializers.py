@@ -101,3 +101,19 @@ class AcceptProjectSerializer(serializers.ModelSerializer):
         model  = RequestItem
         fields = ['id', 'project',  'status', 'project_id', 'user', 'message_from_mentor']
 
+
+
+class AcceptProjectSerializerReadOnly(serializers.ModelSerializer):
+    status              = serializers.CharField(read_only = True)
+    project             = SimpleProjectSerializer(read_only = True)
+    project_id          = serializers.IntegerField(read_only = True)
+    user                = serializers.SerializerMethodField(read_only = True)
+    message_from_mentor = serializers.CharField(read_only = True)
+    created_at          = serializers.DateTimeField(read_only = True)
+    def get_user(self, obj):
+        return SimplaUserSerializer(obj.parent.user).data
+
+    class Meta:
+        model  = RequestItem
+        fields = ['id', 'project',  'status', 'project_id', 'user', 'message_from_mentor', 'created_at']
+

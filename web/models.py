@@ -77,24 +77,25 @@ class RequestItem(models.Model):
     status  = models.CharField(max_length=5, choices=STATUS, default=PENDING)
     message_from_mentor = models.TextField(blank=True, null=True)
 
-# class ApprovedRequest(models.Model):
-#     user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+class ApprovedRequest(models.Model):
+    user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='approved_projects_cart')
 
-# class ApprovedItem(models.Model):
-#     ACTIVE   = 'A'
-#     CANCELED = 'C'
-#     PASSED   = 'P'
-#     APPROVED_STATUS = (
-#         (ACTIVE, 'Active'),
-#         (CANCELED, 'Canceled'),
-#         (PASSED, 'Passed'),
-#     )
-#     parent              = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT, related_name='items')
-#     project             = models.ForeignKey(Project, on_delete=models.PROTECT)
-#     created_at          = models.DateTimeField(auto_now_add=True)
-#     status              = models.CharField(choices=APPROVED_STATUS, default=ACTIVE, max_length=5)
-#     message_from_mentor = models.TextField(blank=True)
-#     def __str__(self):
-#         return (str(self.parent.user.phone) + str(self.project.title))
-    
+class ApprovedItem(models.Model):
+    ACTIVE   = 'A'
+    CANCELED = 'C'
+    PASSED   = 'P'
+    APPROVED_STATUS = (
+        (ACTIVE, 'Active'),
+        (CANCELED, 'Canceled'),
+        (PASSED, 'Passed'),
+    )
+    parent              = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT, related_name='items', verbose_name='user_cart')
+    project             = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='approved_projects')
+    created_at          = models.DateTimeField(auto_now_add=True)
+    status              = models.CharField(choices=APPROVED_STATUS, default=ACTIVE, max_length=5)
+    message_from_mentor = models.TextField(blank=True)
+    def __str__(self):
+        return (str(self.parent.user.phone) + str(self.project.title))
+    class Meta:
+        unique_together = ('parent', 'project')
 

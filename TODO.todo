@@ -4,3 +4,12 @@ use better django filters
 
 
 # TODO create new permission for adding project just by mentoProfile and verification.
+
+
+#TODO : when mentor accepts a request :
+            - auto create approved cart for student
+            - add approve item for student with current project
+
+
+#TODO : on apply check if a person has MAX active or not
+            
