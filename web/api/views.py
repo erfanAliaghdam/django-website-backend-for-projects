@@ -115,20 +115,28 @@ class AcceptRequestsViewSet(ModelViewSet):
 
     @action(detail = True, methods=['GET','POST'],serializer_class=AcceptProjectSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='cancel')
     def cancel(self, request, *args, **kwargs):
+        obj = self.get_object()
+        project = obj.project.id
+        student = obj.parent.user.id
+        if ApprovedItem.objects.select_related('parent').filter(parent__user__pk = student, project__pk = project, status = ApprovedItem.PASSED).exists():
+                raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'client has finished the project you cannot cancel')
         if request.method == 'GET':
+
+
             serializer = AcceptProjectSerializerReadOnly(self.get_object())
             return Response(serializer.data)
         elif request.method == 'POST':
             try:
                 with transaction.atomic():
                     obj = self.get_object()
+
+                    project = obj.project.id
+                    student = obj.parent.user.id
+                    approvedItem = ApprovedItem.objects.select_related('parent').filter(parent__user__pk = student, project__pk = project, status = ApprovedItem.APPROVE).first()
+
                     obj.status = RequestItem.REJECT
                     obj.save()
-                    project = obj.project.id
-                    print(project)
-                    student = obj.parent.user.id
-                    print(student)
-                    approvedItem = ApprovedItem.objects.select_related('parent').filter(parent__user__pk = student, project__pk = project, status = ApprovedItem.APPROVE).first()
+
                     approvedItem.status = ApprovedItem.REJECT
                     approvedItem.message_from_mentor = request.data['message_from_mentor']
                     approvedItem.save()
@@ -141,6 +149,11 @@ class AcceptRequestsViewSet(ModelViewSet):
 
     @action(detail = True, methods=['GET','POST'],serializer_class=AcceptProjectSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='accept')
     def accept(self, request, *args, **kwargs):
+        obj = self.get_object()
+        project = obj.project.id
+        student = obj.parent.user.id
+        if ApprovedItem.objects.select_related('parent').filter(parent__user__pk = student, project__pk = project, status = ApprovedItem.PASSED).exists():
+                raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'client has finished the project you cannot do anything')
         if request.method == 'GET':
             serializer = AcceptProjectSerializerReadOnly(self.get_object())
             return Response(serializer.data)

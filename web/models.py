@@ -73,9 +73,12 @@ class RequestItem(models.Model):
     )
     parent  = models.ForeignKey(RequestedProjects, on_delete=models.PROTECT, related_name='items')
     # TODO on delete project send email or sms to user
-    project = models.ForeignKey(Project, null=True,on_delete=models.SET_NULL, related_name='requests')
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='requests')
     status  = models.CharField(max_length=5, choices=STATUS, default=PENDING)
     message_from_mentor = models.TextField(blank=True, null=True)
+    class Meta:
+        unique_together = ('parent', 'project')
+
 
 class ApprovedRequest(models.Model):
     user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='approved_projects_cart')
