@@ -7,7 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-
+from django.db import transaction
 from django.db.models import Count
 from .serializers import (ProjectSerializer, TagSerializer,
                              RequestedItemsSerializer, VerificationDocSerializer,
@@ -86,6 +86,7 @@ class RequestedItemsViewSet(ModelViewSet):
             raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'You cannot apply for more projects, because you have already ' + str(settings.MAX_ACCEPTED_APPLY_NO) + ' approved active projects')
         return super().create(request, *args, **kwargs)
 
+
 class VerificationViewSet(ModelViewSet):
     serializer_class = VerificationDocSerializer
     permission_classes=[IsAuthenticated]
@@ -98,7 +99,7 @@ class AcceptRequestsViewSet(ModelViewSet):
     serializer_class   = AcceptProjectSerializerReadOnly
     permission_classes = [IsAuthenticated, IsMentor]
     http_method_names  = ['get', 'post']
-    filter_backends    = [SearchFilter, OrderingFilter]
+    filter_backends    = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     search_fields      = ['project__title', 'project__id']
     ordering_fields    = ['project__title']
     def get_queryset(self):
@@ -111,7 +112,34 @@ class AcceptRequestsViewSet(ModelViewSet):
     def create(self, request):
         return Response('FORBIDDEN 403', status=status.HTTP_403_FORBIDDEN)
 
-    @action(detail = False, methods=['GET','POST'],serializer_class=AcceptProjectSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='accept', url_path='(?P<pk>[^/.]+)')
+
+    @action(detail = True, methods=['GET','POST'],serializer_class=AcceptProjectSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='cancel')
+    def cancel(self, request, *args, **kwargs):
+        if request.method == 'GET':
+            serializer = AcceptProjectSerializerReadOnly(self.get_object())
+            return Response(serializer.data)
+        elif request.method == 'POST':
+            try:
+                with transaction.atomic():
+                    obj = self.get_object()
+                    obj.status = RequestItem.REJECT
+                    obj.save()
+                    project = obj.project.id
+                    print(project)
+                    student = obj.parent.user.id
+                    print(student)
+                    approvedItem = ApprovedItem.objects.select_related('parent').filter(parent__user__pk = student, project__pk = project, status = ApprovedItem.APPROVE).first()
+                    approvedItem.status = ApprovedItem.REJECT
+                    approvedItem.message_from_mentor = request.data['message_from_mentor']
+                    approvedItem.save()
+                    print('----DONE----')
+                    return Response('Done' ,status = status.HTTP_200_OK)
+            except Exception as e:
+                print(e)
+                return Response('error' , status = status.HTTP_406_NOT_ACCEPTABLE)
+
+
+    @action(detail = True, methods=['GET','POST'],serializer_class=AcceptProjectSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='accept')
     def accept(self, request, *args, **kwargs):
         if request.method == 'GET':
             serializer = AcceptProjectSerializerReadOnly(self.get_object())
@@ -133,9 +161,13 @@ class AcceptRequestsViewSet(ModelViewSet):
         if not hasattr(student, 'approved_projects_cart'):
             parent = ApprovedRequest.objects.create(user = student)
         else: parent = student.approved_projects_cart
-        
-        ApprovedItem.objects.create(parent = parent, project = project)
-        obj = self.get_object()
-        obj.status = RequestItem.APPROVE
-        obj.save()
-        return Response(status = status.HTTP_201_CREATED)
+        try:
+            with transaction.atomic():
+                ApprovedItem.objects.create(parent = parent, project = project)
+                obj = self.get_object()
+                obj.status = RequestItem.APPROVE
+                obj.save()
+            return Response(status = status.HTTP_201_CREATED)
+        except Exception as e:
+            print(e)
+            return Response('error' , status = status.HTTP_406_NOT_ACCEPTABLE)
