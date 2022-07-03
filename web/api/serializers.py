@@ -32,18 +32,24 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class SimpleProjectSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(max_length = 255, read_only = True)
+    title       = serializers.CharField(max_length = 255, read_only = True)
     class Meta:
         model  = Project
         fields = ['id', 'title']
+
+    
         
 class RequestedItemsSerializer(serializers.ModelSerializer):
-    project    = SimpleProjectSerializer(read_only = True)
-    status     = serializers.CharField(read_only = True)
-    project_id = serializers.IntegerField()
+    project             = SimpleProjectSerializer(read_only = True)
+    status              = serializers.CharField(read_only = True)
+    project_id          = serializers.IntegerField()
+    passed              = serializers.BooleanField(read_only = True)
+    remaining_admission = serializers.IntegerField(read_only = True)
+
+
     class Meta:
         model  = RequestItem
-        fields = ['id', 'project', 'status', 'project_id']
+        fields = ['id', 'project', 'status', 'project_id', 'passed', 'remaining_admission']
 
     
 

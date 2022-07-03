@@ -65,7 +65,7 @@ class RequestedProjects(models.Model):
 class RequestItem(models.Model):
     PENDING  = 'p'
     APPROVE  = 'A'
-    REJECT = 'R'
+    REJECT   = 'R'
     STATUS =(
         (PENDING, 'Pending'),
         (APPROVE, 'Approve'),
@@ -75,6 +75,7 @@ class RequestItem(models.Model):
     # TODO on delete project send email or sms to user
     project = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='requests')
     status  = models.CharField(max_length=5, choices=STATUS, default=PENDING)
+    passed  = models.BooleanField(default=False)
     class Meta:
         unique_together = ('parent', 'project')
 
