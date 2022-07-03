@@ -9,12 +9,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from django.db import transaction
 from django.db.models import Count, Value, F, Q
-from core.api.serializers import MessageSerializer
 from .serializers import (ProjectSerializer, TagSerializer,
                              RequestedItemsSerializer, VerificationDocSerializer,
-                             AcceptProjectSerializer, AcceptProjectSerializerReadOnly,
-                             MentorMessageSerializer)
-from ..models import ApprovedItem, ApprovedRequest, Project, Tag, RequestItem, VerificationDoc, MessageForAdmission
+                             AcceptProjectSerializer, AcceptProjectSerializerReadOnly,)
+from ..models import Project, Tag, RequestItem, VerificationDoc, MentorMessageForAdmission
 
 from ..permissions import IsMentorOrReadOnly, IsMentor
 
@@ -24,25 +22,22 @@ from ..permissions import IsMentorOrReadOnly, IsMentor
 
 
 class ProjectViewSet(ModelViewSet):
-    queryset           = Project.objects.prefetch_related('tag', 'user').all().annotate(
-        num_tags=Count('tag')
-    )
+    queryset           = Project.objects.prefetch_related('user').prefetch_related('tag').all()
     serializer_class   = ProjectSerializer
     filter_backends    = [SearchFilter, DjangoFilterBackend, OrderingFilter]
     filterset_fields   = ['tag']
     search_fields      = ['title', 'description']
-    ordering_fields    = ['num_tags']    
     permission_classes = [IsMentorOrReadOnly]
 
-    def num_tags(self, obj):
-        return obj.num_tags
+
+        
     def get_serializer_context(self):
         return {'context': self.request}
-    
+
     @action(detail = False, methods=['GET'], permission_classes = [IsAuthenticated, IsMentor])
     def me(self, request):
         if request.method == 'GET':
-            project    = Project.objects.filter(user = self.request.user)
+            project    = Project.objects.select_related('user').prefetch_related('tag').filter(user = self.request.user)
             serializer = ProjectSerializer(project, many = True)
             return Response(serializer.data)
 
@@ -50,7 +45,7 @@ class ProjectViewSet(ModelViewSet):
     @action(detail = False, methods=['GET', 'PUT'], permission_classes = [IsAuthenticated], url_path='me/(?P<project_id>[^/.]+)')
     def myProjectDetail(self, request, project_id):
         try:
-            project = Project.objects.get(user = self.request.user, pk = project_id)
+            project = Project.objects.prefetch_related('tag').select_related('user').get(user = self.request.user, pk = project_id)
         except Project.DoesNotExist:
             return Response(status = status.HTTP_404_NOT_FOUND)
         if request.method == 'GET':
@@ -72,16 +67,17 @@ class RequestedItemsViewSet(ModelViewSet):
     serializer_class   = RequestedItemsSerializer
     permission_classes = [IsAuthenticated]
     http_method_names  = ['get', 'delete', 'post']
-
+    filter_backends    = [SearchFilter, DjangoFilterBackend]
+    filterset_fields   = ['project__tag']
+    search_fields      = ['project__title']
+    select_related     = ['project', 'parent']
     def get_queryset(self):
         return RequestItem.objects.select_related('project', 'parent').filter(parent__user = self.request.user).all().annotate(
             remaining_admission = F('project__admissionNo') - Count('id', filter=Q(status = RequestItem.APPROVE))
         )
 
-
-
     def destroy(self, request, *args, **kwargs):
-        objStatus     = RequestItem.objects.select_related('parent').filter(pk = self.kwargs['pk']).values('status')[0]['status']
+        objStatus     = RequestItem.objects.select_related('parent', 'user').filter(pk = self.kwargs['pk']).values('status')[0]['status']
         if objStatus == RequestItem.APPROVE:
             raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'You cannot delete an approved request')
         return super().destroy(request, *args, **kwargs)
@@ -93,6 +89,20 @@ class RequestedItemsViewSet(ModelViewSet):
             raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'You cannot apply for more projects, because you have already ' + str(settings.MAX_ACCEPTED_APPLY_NO) + ' approved active projects')
         return super().create(request, *args, **kwargs)
 
+    # @action(detail = True, methods=['GET', 'PUT'],serializer_class=RequestedItemsSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='applied-projects')    
+    # def applied(self, request):
+    #     if request.method == 'GET':
+    #         projects = RequestItem.objects.select_related('project').filter(project__user = self.request.user).all().annotate(
+    #             remaining_admission = F('project__admissionNo') - Count('id', filter=Q(status = RequestItem.APPROVE))
+    #         )
+        #     serializer = RequestedItemsSerializer(projects, many = True)
+        #     return Response(serializer.data)
+        # elif request.method == 'PUT':
+        #     serializer = RequestedItemsSerializer(data = request.data)
+        #     serializer.is_valid(raise_exception = True)
+        #     serializer.save()
+        #     return Response(serializer.data)
+
 
 class VerificationViewSet(ModelViewSet):
     serializer_class = VerificationDocSerializer
@@ -102,6 +112,24 @@ class VerificationViewSet(ModelViewSet):
         return VerificationDoc.objects.select_related('user').filter(user = self.request.user).all()
 
 
+    def list(self, request, *args, **kwargs):
+        instance = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(instance,many=True)
+        response_data = []
+        response_data.extend(serializer.data)
+        if self.request.user.is_mentor:
+            if self.request.user.profile_mentor.is_verified:
+                response_data.append({'verified' : True})
+            else: response_data.append({'verified' : False})
+        else: 
+            if self.request.user.profile_stud.is_verified:
+                response_data.append({'verified' : True})
+            else: response_data.append({'verified' : False})
+        response = Response(response_data)
+        return response
+
+
+
 class AcceptRequestsViewSet(ModelViewSet):
     serializer_class   = AcceptProjectSerializerReadOnly
     permission_classes = [IsAuthenticated, IsMentor]
@@ -109,8 +137,12 @@ class AcceptRequestsViewSet(ModelViewSet):
     filter_backends    = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     search_fields      = ['project__title', 'project__id']
     ordering_fields    = ['project__title']
+
     def get_queryset(self):
-        return RequestItem.objects.select_related('project', 'parent__user').filter(project__user = self.request.user).all()
+        return RequestItem.objects.select_related('project', 'parent__user').filter(project__user = self.request.user).all().annotate(
+            remaining_admission = F('project__admissionNo') - Count('id', filter=Q(status = RequestItem.APPROVE)),
+            active_count        = Count('id', filter=Q(status = RequestItem.APPROVE)),
+        )
     
     def get_serializer_context(self):
         return {'context': self.request}
@@ -121,12 +153,12 @@ class AcceptRequestsViewSet(ModelViewSet):
         return Response('FORBIDDEN 403', status=status.HTTP_403_FORBIDDEN)
 
 
+
+
     @action(detail = True, methods=['GET','POST'],serializer_class=AcceptProjectSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='cancel')
     def cancel(self, request, *args, **kwargs):
         obj     = self.get_object()
-        project = obj.project.id
-        student = obj.parent.user.id
-        if ApprovedItem.objects.select_related('parent').filter(parent__user__pk = student, project__pk = project, status = ApprovedItem.PASSED).exists():
+        if obj.passed:
                 raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'client has finished the project you cannot cancel')
         if request.method == 'GET':
             serializer = AcceptProjectSerializerReadOnly(obj)
@@ -134,13 +166,9 @@ class AcceptRequestsViewSet(ModelViewSet):
         elif request.method == 'POST':
             try:
                 with transaction.atomic():
-                    approvedItem        = ApprovedItem.objects.select_related('parent', 'project').get(parent__user__pk = student, project__pk = project, status = ApprovedItem.APPROVE)
-                    approvedItem.status = ApprovedItem.REJECT
-                    approvedItem.save()
                     obj.status = RequestItem.REJECT
                     obj.save()
-                    MessageForAdmission.objects.create(parent = approvedItem, message = request.POST['message'])
-                    print('----DONE----')
+                    MentorMessageForAdmission.objects.create(parent = obj, message = request.POST['message'])
                     return Response('Canceled .' ,status = status.HTTP_200_OK)
             except Exception as e:
                 print(e)
@@ -149,39 +177,24 @@ class AcceptRequestsViewSet(ModelViewSet):
 
     @action(detail = True, methods=['GET','POST'],serializer_class=AcceptProjectSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='accept')
     def accept(self, request, *args, **kwargs):
-        print('----ACCEPT----')
         obj     = self.get_object()
-        project = obj.project
-        student = obj.parent.user
-        if ApprovedItem.objects.select_related('parent', 'project').filter(parent__user = student, project = project, status = ApprovedItem.PASSED).exists():
+        if obj.passed:
                 raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'client has finished the project you cannot do anything')
         if request.method == 'GET':
             serializer = AcceptProjectSerializerReadOnly(obj)
             return Response(serializer.data)
-        print('-----||||-----')
-
-        student_active_approved_count     = ApprovedRequest.objects.prefetch_related('items').filter(user = student, items__status = ApprovedItem.APPROVE).count()
-
-        if student_active_approved_count >= int(settings.MAX_ACCEPTED_APPLY_NO):
-            raise ValidationError(code    = status.HTTP_406_NOT_ACCEPTABLE, detail = 'this user has ' + str(settings.MAX_ACCEPTED_APPLY_NO) + ' active projects choose another student.')
-        
-        
-        active_approved_count = ApprovedItem.objects.filter(project = project, parent__user = student ,status = ApprovedItem.APPROVE).count()
-        if project.admissionNo <= active_approved_count:
-            raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'Project is full')
-
-        if not hasattr(student, 'approved_projects_cart'):
-            parent   = ApprovedRequest.objects.create(user = student)
-        else: parent = student.approved_projects_cart
-        try:
-            with transaction.atomic():
-                approve, _ = ApprovedItem.objects.get_or_create(parent = parent, project = project)
-                approve.status = ApprovedItem.APPROVE
-                approve.save()
-                obj.status = RequestItem.APPROVE
-                obj.save()
-                MessageForAdmission.objects.create(parent = approve, message = request.POST['message'])
-            return Response(status = status.HTTP_201_CREATED)
-        except Exception as e:
-            print(e)
-            return Response('error' , status = status.HTTP_406_NOT_ACCEPTABLE)
+        elif request.method == 'POST':
+            active_count     =  RequestItem.objects.select_related('parent', 'project').filter(parent__user = obj.parent.user , project = obj.project, status = RequestItem.APPROVE).count()
+            if active_count >= int(settings.MAX_ACCEPTED_APPLY_NO):
+                raise ValidationError(code    = status.HTTP_406_NOT_ACCEPTABLE, detail = 'this user has ' + str(settings.MAX_ACCEPTED_APPLY_NO) + ' active projects choose another student.')
+            if obj.remaining_admission <= 0:
+                raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'Project is full')
+            try:
+                with transaction.atomic():
+                    obj.status = RequestItem.APPROVE
+                    obj.save()
+                    MentorMessageForAdmission.objects.select_related('parent').create(parent = obj, message = request.POST['message'])
+                return Response(status = status.HTTP_201_CREATED)
+            except Exception as e:
+                print(e)
+                return Response('error' , status = status.HTTP_406_NOT_ACCEPTABLE)

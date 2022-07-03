@@ -1,8 +1,7 @@
 from rest_framework import serializers, status
-from ..models import ApprovedItem, Project, Tag, RequestedProjects, RequestItem, VerificationDoc, MessageForAdmission
+from ..models import Project, Tag, RequestedProjects, RequestItem, VerificationDoc, MentorMessageForAdmission
 from django.contrib.auth import get_user_model
 from core.api.serializers import UserSerializer
-from django.forms.fields import CharField
 
 
 
@@ -51,8 +50,6 @@ class RequestedItemsSerializer(serializers.ModelSerializer):
         model  = RequestItem
         fields = ['id', 'project', 'status', 'project_id', 'passed', 'remaining_admission']
 
-    
-
     def create(self, validated_data):
         project_id    = validated_data.pop('project_id')
         appliedNo     = RequestItem.objects.select_related('project').filter(project__id = project_id, status=RequestItem.APPROVE).count()
@@ -87,6 +84,8 @@ class VerificationDocSerializer(serializers.ModelSerializer):
         verification_doc = VerificationDoc.objects.create(user = self.context['request'].user, document = validated_data['document'])
         return verification_doc   
 
+
+
 class SimplaUserSerializer(serializers.ModelSerializer):
     class Meta:
         model  = get_user_model()
@@ -99,7 +98,7 @@ class MentorMessageSerializer(serializers.ModelSerializer):
         return SimplaUserSerializer(obj.parent.parent.user).data
 
     class Meta:
-        model  = MessageForAdmission
+        model  = MentorMessageForAdmission
         fields = ['id', 'message', 'user']
 
 

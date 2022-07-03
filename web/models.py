@@ -80,30 +80,30 @@ class RequestItem(models.Model):
         unique_together = ('parent', 'project')
 
 
-class ApprovedRequest(models.Model):
-    user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='approved_projects_cart')
+# class ApprovedRequest(models.Model):
+#     user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='approved_projects_cart')
 
-class ApprovedItem(models.Model):
-    APPROVE   = 'A'
-    REJECT = 'R'
-    PASSED   = 'P'
-    APPROVED_STATUS = (
-        (APPROVE, 'Active'),
-        (REJECT, 'REJECTED'),
-        (PASSED, 'Passed'),
-    )
-    parent              = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT, related_name='items', verbose_name='user_cart')
-    project             = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='approved_projects')
-    created_at          = models.DateTimeField(auto_now_add=True)
-    status              = models.CharField(choices=APPROVED_STATUS, default=APPROVE, max_length=5)
-    def __str__(self):
-        return (str(self.parent.user.phone) + str(self.project.title))
-    class Meta:
-        unique_together = ('parent', 'project')
+# class ApprovedItem(models.Model):
+#     APPROVE   = 'A'
+#     REJECT = 'R'
+#     PASSED   = 'P'
+#     APPROVED_STATUS = (
+#         (APPROVE, 'Active'),
+#         (REJECT, 'REJECTED'),
+    #     (PASSED, 'Passed'),
+    # )
+    # parent              = models.ForeignKey(ApprovedRequest, on_delete=models.PROTECT, related_name='items', verbose_name='user_cart')
+    # project             = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='approved_projects')
+    # created_at          = models.DateTimeField(auto_now_add=True)
+    # status              = models.CharField(choices=APPROVED_STATUS, default=APPROVE, max_length=5)
+    # def __str__(self):
+    #     return (str(self.parent.user.phone) + str(self.project.title))
+    # class Meta:
+    #     unique_together = ('parent', 'project')
 
 
 
-class MessageForAdmission(models.Model):
-    parent  = models.ForeignKey(ApprovedItem, on_delete=models.CASCADE, related_name='messages')
-    message = models.TextField()
+class MentorMessageForAdmission(models.Model):
+    parent     = models.ForeignKey(RequestItem, on_delete=models.CASCADE, related_name='messages')
+    message    = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

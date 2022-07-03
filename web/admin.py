@@ -80,39 +80,39 @@ class ProjectAdmin(admin.ModelAdmin):
         return obj.applied_No
 
 
-class TublarApprovedItem(admin.TabularInline):
-    model = models.ApprovedItem
-    extra = 0
-    autocomplete_fields = ['project']
+# class TublarApprovedItem(admin.TabularInline):
+#     model = models.ApprovedItem
+#     extra = 0
+#     autocomplete_fields = ['project']
     
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('project', 'parent')
+#     def get_queryset(self, request):
+#         return super().get_queryset(request).select_related('project', 'parent')
 
 
 
-@admin.register(models.ApprovedRequest)
-class ApprovedRequestAdmin(admin.ModelAdmin):
-    model = models.ApprovedRequest
-    list_display = ['user', 'project_count', 'active_project_count']
-    search_fields = ['user__phone']
-    autocomplete_fields = ['user']
-    list_select_related = ['user']
-    inlines = [TublarApprovedItem]
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user').prefetch_related('items').annotate(
-            proj_count = Count('items'),
-            active_proj_count = Count('items__status', filter=Q(items__status=models.ApprovedItem.APPROVE))
-        )
+# @admin.register(models.ApprovedRequest)
+# class ApprovedRequestAdmin(admin.ModelAdmin):
+    # model = models.ApprovedRequest
+    # list_display = ['user', 'project_count', 'active_project_count']
+    # search_fields = ['user__phone']
+    # autocomplete_fields = ['user']
+    # list_select_related = ['user']
+    # inlines = [TublarApprovedItem]
+    # def get_queryset(self, request):
+    #     return super().get_queryset(request).select_related('user').prefetch_related('items').annotate(
+    #         proj_count = Count('items'),
+    #         active_proj_count = Count('items__status', filter=Q(items__status=models.ApprovedItem.APPROVE))
+    #     )
 
-    def project_count(self, obj):
-        return obj.proj_count
+    # def project_count(self, obj):
+    #     return obj.proj_count
 
-    def active_project_count(self, obj):
-        return obj.active_proj_count
+    # def active_project_count(self, obj):
+    #     return obj.active_proj_count
 
-@admin.register(models.MessageForAdmission)
+@admin.register(models.MentorMessageForAdmission)
 class MessageForAdmissionAdmin(admin.ModelAdmin):
-    model = models.MessageForAdmission
+    model = models.MentorMessageForAdmission
     list_display = ['parent', 'message']
     search_fields = ['parent']
     list_select_related = ['parent']
