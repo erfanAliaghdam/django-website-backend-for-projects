@@ -9,10 +9,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from django.db import transaction
 from django.db.models import Count
+
+from core.api.serializers import MessageSerializer
 from .serializers import (ProjectSerializer, TagSerializer,
                              RequestedItemsSerializer, VerificationDocSerializer,
-                             AcceptProjectSerializer, AcceptProjectSerializerReadOnly)
-from ..models import ApprovedItem, ApprovedRequest, Project, Tag, RequestItem, VerificationDoc
+                             AcceptProjectSerializer, AcceptProjectSerializerReadOnly,
+                             MentorMessageSerializer)
+from ..models import ApprovedItem, ApprovedRequest, Project, Tag, RequestItem, VerificationDoc, MessageForAdmission
 
 from ..permissions import IsMentorOrReadOnly, IsMentor
 
@@ -73,6 +76,8 @@ class RequestedItemsViewSet(ModelViewSet):
     def get_queryset(self):
         return RequestItem.objects.select_related('project', 'parent').filter(parent__user = self.request.user).all()
 
+
+
     def destroy(self, request, *args, **kwargs):
         objStatus     = RequestItem.objects.select_related('parent').filter(pk = self.kwargs['pk']).values('status')[0]['status']
         if objStatus == RequestItem.APPROVE:
@@ -109,39 +114,32 @@ class AcceptRequestsViewSet(ModelViewSet):
         return {'context': self.request}
 
 
+
     def create(self, request):
         return Response('FORBIDDEN 403', status=status.HTTP_403_FORBIDDEN)
 
 
     @action(detail = True, methods=['GET','POST'],serializer_class=AcceptProjectSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='cancel')
     def cancel(self, request, *args, **kwargs):
-        obj = self.get_object()
+        obj     = self.get_object()
         project = obj.project.id
         student = obj.parent.user.id
         if ApprovedItem.objects.select_related('parent').filter(parent__user__pk = student, project__pk = project, status = ApprovedItem.PASSED).exists():
                 raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'client has finished the project you cannot cancel')
         if request.method == 'GET':
-
-
-            serializer = AcceptProjectSerializerReadOnly(self.get_object())
+            serializer = AcceptProjectSerializerReadOnly(obj)
             return Response(serializer.data)
         elif request.method == 'POST':
             try:
                 with transaction.atomic():
-                    obj = self.get_object()
-
-                    project = obj.project.id
-                    student = obj.parent.user.id
-                    approvedItem = ApprovedItem.objects.select_related('parent').filter(parent__user__pk = student, project__pk = project, status = ApprovedItem.APPROVE).first()
-
+                    approvedItem        = ApprovedItem.objects.select_related('parent', 'project').get(parent__user__pk = student, project__pk = project, status = ApprovedItem.APPROVE)
+                    approvedItem.status = ApprovedItem.REJECT
+                    approvedItem.save()
                     obj.status = RequestItem.REJECT
                     obj.save()
-
-                    approvedItem.status = ApprovedItem.REJECT
-                    approvedItem.message_from_mentor = request.data['message_from_mentor']
-                    approvedItem.save()
+                    MessageForAdmission.objects.create(parent = approvedItem, message = request.POST['message'])
                     print('----DONE----')
-                    return Response('Done' ,status = status.HTTP_200_OK)
+                    return Response('Canceled .' ,status = status.HTTP_200_OK)
             except Exception as e:
                 print(e)
                 return Response('error' , status = status.HTTP_406_NOT_ACCEPTABLE)
@@ -149,37 +147,38 @@ class AcceptRequestsViewSet(ModelViewSet):
 
     @action(detail = True, methods=['GET','POST'],serializer_class=AcceptProjectSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='accept')
     def accept(self, request, *args, **kwargs):
-        obj = self.get_object()
-        project = obj.project.id
-        student = obj.parent.user.id
-        if ApprovedItem.objects.select_related('parent').filter(parent__user__pk = student, project__pk = project, status = ApprovedItem.PASSED).exists():
+        print('----ACCEPT----')
+        obj     = self.get_object()
+        project = obj.project
+        student = obj.parent.user
+        if ApprovedItem.objects.select_related('parent', 'project').filter(parent__user = student, project = project, status = ApprovedItem.PASSED).exists():
                 raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'client has finished the project you cannot do anything')
         if request.method == 'GET':
-            serializer = AcceptProjectSerializerReadOnly(self.get_object())
+            serializer = AcceptProjectSerializerReadOnly(obj)
             return Response(serializer.data)
-            
         print('-----||||-----')
-        student = self.get_object().parent.user
-        project = self.get_object().project
 
-        student_active_approved_count = ApprovedRequest.objects.filter(user = student, items__status = ApprovedItem.APPROVE).count()
+        student_active_approved_count     = ApprovedRequest.objects.prefetch_related('items').filter(user = student, items__status = ApprovedItem.APPROVE).count()
+
         if student_active_approved_count >= int(settings.MAX_ACCEPTED_APPLY_NO):
-            raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'this user has ' + str(settings.MAX_ACCEPTED_APPLY_NO) + ' active projects choose another student.')
+            raise ValidationError(code    = status.HTTP_406_NOT_ACCEPTABLE, detail = 'this user has ' + str(settings.MAX_ACCEPTED_APPLY_NO) + ' active projects choose another student.')
         
         
-        active_approved_count = ApprovedItem.objects.filter(project = project, status = ApprovedItem.APPROVE).count()
+        active_approved_count = ApprovedItem.objects.filter(project = project, parent__user = student ,status = ApprovedItem.APPROVE).count()
         if project.admissionNo <= active_approved_count:
             raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'Project is full')
 
         if not hasattr(student, 'approved_projects_cart'):
-            parent = ApprovedRequest.objects.create(user = student)
+            parent   = ApprovedRequest.objects.create(user = student)
         else: parent = student.approved_projects_cart
         try:
             with transaction.atomic():
-                ApprovedItem.objects.create(parent = parent, project = project)
-                obj = self.get_object()
+                approve, _ = ApprovedItem.objects.get_or_create(parent = parent, project = project)
+                approve.status = ApprovedItem.APPROVE
+                approve.save()
                 obj.status = RequestItem.APPROVE
                 obj.save()
+                MessageForAdmission.objects.create(parent = approve, message = request.POST['message'])
             return Response(status = status.HTTP_201_CREATED)
         except Exception as e:
             print(e)

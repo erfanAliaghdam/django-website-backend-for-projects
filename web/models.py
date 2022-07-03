@@ -75,7 +75,6 @@ class RequestItem(models.Model):
     # TODO on delete project send email or sms to user
     project = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='requests')
     status  = models.CharField(max_length=5, choices=STATUS, default=PENDING)
-    message_from_mentor = models.TextField(blank=True, null=True)
     class Meta:
         unique_together = ('parent', 'project')
 
@@ -96,9 +95,14 @@ class ApprovedItem(models.Model):
     project             = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='approved_projects')
     created_at          = models.DateTimeField(auto_now_add=True)
     status              = models.CharField(choices=APPROVED_STATUS, default=APPROVE, max_length=5)
-    message_from_mentor = models.TextField(blank=True)
     def __str__(self):
         return (str(self.parent.user.phone) + str(self.project.title))
     class Meta:
         unique_together = ('parent', 'project')
 
+
+
+class MessageForAdmission(models.Model):
+    parent  = models.ForeignKey(ApprovedItem, on_delete=models.CASCADE, related_name='messages')
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)

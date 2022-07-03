@@ -1,10 +1,8 @@
-from random import choices
-from django.forms import CharField, ChoiceField
 from rest_framework import serializers, status
-from ..models import ApprovedItem, Project, Tag, RequestedProjects, RequestItem, VerificationDoc
+from ..models import ApprovedItem, Project, Tag, RequestedProjects, RequestItem, VerificationDoc, MessageForAdmission
 from django.contrib.auth import get_user_model
 from core.api.serializers import UserSerializer
-
+from django.forms.fields import CharField
 
 
 
@@ -88,18 +86,36 @@ class SimplaUserSerializer(serializers.ModelSerializer):
         model  = get_user_model()
         fields = ['first_name', 'last_name', 'resume']
 
+
+class MentorMessageSerializer(serializers.ModelSerializer):
+    user                = serializers.SerializerMethodField(read_only = True)
+    def get_user(self, obj):
+        return SimplaUserSerializer(obj.parent.parent.user).data
+
+    class Meta:
+        model  = MessageForAdmission
+        fields = ['id', 'message', 'user']
+
+
+
+
 class AcceptProjectSerializer(serializers.ModelSerializer):
     status              = serializers.CharField(read_only = True)
     project             = SimpleProjectSerializer(read_only = True)
     project_id          = serializers.IntegerField(read_only = True)
     user                = serializers.SerializerMethodField(read_only = True)
-    message_from_mentor = serializers.CharField(required = True)
+    message             = serializers.CharField(required = True)
     def get_user(self, obj):
         return SimplaUserSerializer(obj.parent.user).data
 
+    def create(self, validated_data):
+        validated_data.pop("message", None)
+        return super().create(validated_data)
+
     class Meta:
         model  = RequestItem
-        fields = ['id', 'project',  'status', 'project_id', 'user', 'message_from_mentor']
+        fields = ['id', 'project',  'status', 'project_id', 'user', 'message']
+
 
 
 
@@ -108,10 +124,10 @@ class AcceptProjectSerializerReadOnly(serializers.ModelSerializer):
     project             = SimpleProjectSerializer(read_only = True)
     project_id          = serializers.IntegerField(read_only = True)
     user                = serializers.SerializerMethodField(read_only = True)
-    message_from_mentor = serializers.CharField(read_only = True)
     def get_user(self, obj):
         return SimplaUserSerializer(obj.parent.user).data
 
     class Meta:
         model  = RequestItem
-        fields = ['id', 'project',  'status', 'project_id', 'user', 'message_from_mentor']
+        fields = ['id', 'project', 'status', 'project_id', 'user']
+
