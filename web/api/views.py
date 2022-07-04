@@ -16,10 +16,9 @@ from .serializers import (ProjectSerializer, TagSerializer,
                              MentorMessageSerializer,)
 from ..models import Project, Tag, RequestItem, VerificationDoc, MentorMessageForAdmission
 
-from ..permissions import IsMentorOrReadOnly, IsMentor
+from ..permissions import IsMentorOrReadOnly, IsMentor, IsVerifiedUser
 
 # Create your views here.
-
 
 
 
@@ -55,7 +54,7 @@ class ProjectViewSet(ModelViewSet):
             return Response(serializer.data)
 
 
-    @action(detail = False, methods=['GET', 'PUT'], permission_classes = [IsAuthenticated], url_path='me/(?P<project_id>[^/.]+)')
+    @action(detail = False, methods=['GET', 'PUT'], permission_classes = [IsAuthenticated, IsMentor], url_path='me/(?P<project_id>[^/.]+)')
     def myProjectDetail(self, request, project_id):
         try:
             project = Project.objects.prefetch_related('tag').select_related('user').get(user = self.request.user, pk = project_id)
@@ -78,7 +77,7 @@ class TagViewSet(ReadOnlyModelViewSet):
 
 class RequestedItemsViewSet(ModelViewSet):
     serializer_class   = RequestedItemsSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerifiedUser]
     http_method_names  = ['get', 'delete', 'post']
     filter_backends    = [SearchFilter, DjangoFilterBackend]
     filterset_fields   = ['project__tag']
@@ -145,7 +144,7 @@ class VerificationViewSet(ModelViewSet):
 
 class AcceptRequestsViewSet(ModelViewSet):
     serializer_class   = AcceptProjectSerializerReadOnly
-    permission_classes = [IsAuthenticated, IsMentor]
+    permission_classes = [IsAuthenticated, IsMentor, IsVerifiedUser]
     http_method_names  = ['get', 'post']
     filter_backends    = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     search_fields      = ['project__title', 'project__id']
@@ -215,7 +214,7 @@ class AcceptRequestsViewSet(ModelViewSet):
 
 class MentorMessageViewSet(ModelViewSet):
     serializer_class   = MentorMessageSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerifiedUser]
 
     def get_queryset(self):
         return MentorMessageForAdmission.objects.select_related('parent').all()

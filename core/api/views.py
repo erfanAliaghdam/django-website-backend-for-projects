@@ -69,7 +69,7 @@ class AuthTokenViewSet(ModelViewSet):
         user = User.objects.get(phone=phone)
         print(max(user.otpExpire.timestamp(), datetime.now().timestamp()))
         if max(user.otpExpire.timestamp(), datetime.now().timestamp()) == datetime.now().timestamp():
-            raise ValidationError("otp code expired")
+            raise ValidationError("otp code expired.")
         elif user.otpCode == serializer.validated_data['otp']:
             user.otp_activated = True
             user.save()

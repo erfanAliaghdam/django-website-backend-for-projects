@@ -19,7 +19,7 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
     #* ------------------------------
-    list_display = ("phone", "is_mentor" , "first_name", "last_name")
+    list_display = ("phone", "is_mentor" , "first_name", "last_name", "otp_activated")
     #* ------------------------------
     fieldsets = (
         (None, {"fields": ("phone", "password")}),
@@ -28,6 +28,7 @@ class UserAdmin(BaseUserAdmin):
             ("Permissions"),
             {
                 "fields": (
+                    "otp_activated",
                     "is_active",
                     "is_staff",
                     "is_superuser",
@@ -40,7 +41,7 @@ class UserAdmin(BaseUserAdmin):
         (("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
     #* ------------------------------
-    list_filter = ("is_staff", "is_superuser", "is_active", "groups", "is_mentor", "profile_stud__is_verified", MentorVerificationFilter)
+    list_filter = ("is_staff", "is_superuser", "is_active", "groups", "is_mentor", "otp_activated", "profile_stud__is_verified", MentorVerificationFilter)
     search_fields = ['first_name', 'last_name', 'phone']
     #* ------------------------------
     def get_queryset(self, request):
@@ -51,7 +52,6 @@ class UserAdmin(BaseUserAdmin):
         if obj is None:
             return []
         elif obj.is_mentor:
-            print(self.get_changelist_instance)
             return [TublarDocument, TublarMentor]
         return [TublarStudent]
 

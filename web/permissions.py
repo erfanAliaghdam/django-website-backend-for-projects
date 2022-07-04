@@ -31,3 +31,17 @@ class IsMentor(permissions.BasePermission):
             else: return False
         except: return False
         
+class IsVerifiedUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        try: 
+            if request.user.is_mentor:
+                if request.user.profile_mentor.is_verified:
+                    return True
+                else: return False
+            elif not request.user.is_mentor:
+                if request.user.profile_stud.is_verified:
+                    return True
+                else: return False 
+            elif request.user.is_superuser or request.user.is_staff:
+                return True
+        except: return False
