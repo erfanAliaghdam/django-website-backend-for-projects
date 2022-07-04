@@ -92,15 +92,6 @@ class SimplaUserSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'resume']
 
 
-class MentorMessageSerializer(serializers.ModelSerializer):
-    user                = serializers.SerializerMethodField(read_only = True)
-    def get_user(self, obj):
-        return SimplaUserSerializer(obj.parent.parent.user).data
-
-    class Meta:
-        model  = MentorMessageForAdmission
-        fields = ['id', 'message', 'user']
-
 
 
 
@@ -135,4 +126,10 @@ class AcceptProjectSerializerReadOnly(serializers.ModelSerializer):
     class Meta:
         model  = RequestItem
         fields = ['id', 'project', 'status', 'project_id', 'user']
+
+
+class MentorMessageSerializer(serializers.ModelSerializer):    
+    class Meta:
+        model  = MentorMessageForAdmission
+        fields = ['id', 'message', 'parent']
 

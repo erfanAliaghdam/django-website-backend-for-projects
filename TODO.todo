@@ -12,4 +12,5 @@ use better django filters
 
 
 #TODO : on apply check if a person has MAX active or not
+#TODO : on create proj sms - on active proj sms
             

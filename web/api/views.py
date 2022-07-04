@@ -1,5 +1,5 @@
 from django.conf import settings
-from rest_framework import status, mixins
+from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -8,10 +8,11 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from django.db import transaction
-from django.db.models import Count, Value, F, Q
+from django.db.models import Count, F, Q
 from .serializers import (ProjectSerializer, TagSerializer,
                              RequestedItemsSerializer, VerificationDocSerializer,
-                             AcceptProjectSerializer, AcceptProjectSerializerReadOnly,)
+                             AcceptProjectSerializer, AcceptProjectSerializerReadOnly,
+                             MentorMessageSerializer,)
 from ..models import Project, Tag, RequestItem, VerificationDoc, MentorMessageForAdmission
 
 from ..permissions import IsMentorOrReadOnly, IsMentor
@@ -174,7 +175,7 @@ class AcceptRequestsViewSet(ModelViewSet):
                 print(e)
                 return Response('error' , status = status.HTTP_406_NOT_ACCEPTABLE)
 
-
+    # TODO : add messages action
     @action(detail = True, methods=['GET','POST'],serializer_class=AcceptProjectSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='accept')
     def accept(self, request, *args, **kwargs):
         obj     = self.get_object()
@@ -198,3 +199,30 @@ class AcceptRequestsViewSet(ModelViewSet):
             except Exception as e:
                 print(e)
                 return Response('error' , status = status.HTTP_406_NOT_ACCEPTABLE)
+
+
+class MentorMessageViewSet(ModelViewSet):
+    serializer_class   = MentorMessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return MentorMessageForAdmission.objects.select_related('parent').all()
+
+    def get_serializer_context(self):
+        return {'context': self.request}
+
+    # @action(detail = True, methods=['GET','POST'],serializer_class=MentorMessageSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='reply')
+    # def reply(self, request, *args, **kwargs):
+    #     obj     = self.get_object()
+    #     if request.method == 'GET':
+    #         serializer = MentorMessageSerializer(obj)
+    #         return Response(serializer.data)
+    #     elif request.method == 'POST':
+    #         try:
+    #             with transaction.atomic():
+            #         obj.message = request.POST['message']
+            #         obj.save()
+            #         return Response('Replied .' ,status = status.HTTP_200_OK)
+            # except Exception as e:
+            #     print(e)
+            #     return Response('error' , status = status.HTTP_406_NOT_ACCEPTABLE)

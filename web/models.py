@@ -1,8 +1,10 @@
+from operator import is_
 from django.db import models
 from django.conf import settings
 from colorfield.fields import ColorField
 from private_storage.fields import PrivateFileField
 from uuid import uuid4
+
 
 
 class Tag(models.Model):
@@ -51,6 +53,7 @@ class Project(models.Model):
     is_active    = models.BooleanField(default=True)
     user         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='my_projects')
     admissionNo  = models.PositiveIntegerField(default=1)
+    is_active    = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.title
