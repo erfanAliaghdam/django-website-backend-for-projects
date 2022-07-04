@@ -6,6 +6,8 @@ from private_storage.fields import PrivateFileField
 from uuid import uuid4
 
 
+    
+
 
 class Tag(models.Model):
     name  = models.CharField(max_length=225)
@@ -55,8 +57,9 @@ class Project(models.Model):
     admissionNo  = models.PositiveIntegerField(default=1)
     is_active    = models.BooleanField(default=False)
 
-    def __str__(self) -> str:
-        return self.title
+
+
+
 
 
 class RequestedProjects(models.Model):
@@ -81,8 +84,23 @@ class RequestItem(models.Model):
     class Meta:
         unique_together = ('parent', 'project')
 
-    # def __str__(self) -> str:
-    #     return super().__str__().parent.user.phone
+
+
+
+class MentorMessageForAdmission(models.Model):
+    parent     = models.ForeignKey(RequestItem, on_delete=models.CASCADE, related_name='messages')
+    message    = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        title = 'Mentor Message for Admission from user : '+ str(self.parent.project.user.phone) + ' to -> ' + str(self.parent.parent.user.phone) + ' .'
+        return title
+
+
+
+
+
+
 
 # class ApprovedRequest(models.Model):
 #     user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='approved_projects_cart')
@@ -105,13 +123,3 @@ class RequestItem(models.Model):
     # class Meta:
     #     unique_together = ('parent', 'project')
 
-
-
-class MentorMessageForAdmission(models.Model):
-    parent     = models.ForeignKey(RequestItem, on_delete=models.CASCADE, related_name='messages')
-    message    = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self) -> str:
-        title = 'Mentor Message for Admission from user : '+ str(self.parent.project.user.phone) + ' to -> ' + str(self.parent.parent.user.phone) + ' .'
-        return title

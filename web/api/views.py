@@ -1,4 +1,5 @@
 from django.conf import settings
+from itsdangerous import Serializer
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -23,19 +24,30 @@ from ..permissions import IsMentorOrReadOnly, IsMentor
 
 
 class ProjectViewSet(ModelViewSet):
-    queryset           = Project.objects.prefetch_related('user').prefetch_related('tag').all()
     serializer_class   = ProjectSerializer
     filter_backends    = [SearchFilter, DjangoFilterBackend, OrderingFilter]
     filterset_fields   = ['tag']
     search_fields      = ['title', 'description']
     permission_classes = [IsMentorOrReadOnly]
+    ordering_fields    = ['project__title']
 
 
-        
+    def get_queryset(self):
+        return Project.objects.select_related('user').prefetch_related('tag', 'requests').annotate(
+            remaining_admission = F('admissionNo') - Count('requests__id', filter=Q(requests__status = RequestItem.APPROVE))
+            ).all()
+
     def get_serializer_context(self):
         return {'context': self.request}
 
-    @action(detail = False, methods=['GET'], permission_classes = [IsAuthenticated, IsMentor])
+    def list(self, request, *args, **kwargs):
+        qs = Project.objects.select_related('user').prefetch_related('tag', 'requests').filter(is_active = True).annotate(
+            remaining_admission = F('admissionNo') - Count('requests__id', filter=Q(requests__status = RequestItem.APPROVE))
+            ).all()
+        serializer = ProjectSerializer(qs, many = True, context = {'context': request})
+        return Response(serializer.data)
+
+    @action(detail = False, methods=['GET'], permission_classes = [IsAuthenticated, IsMentor], ordering_fields=['project__title', 'project__is_active'])
     def me(self, request):
         if request.method == 'GET':
             project    = Project.objects.select_related('user').prefetch_related('tag').filter(user = self.request.user)

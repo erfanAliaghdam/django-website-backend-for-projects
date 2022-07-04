@@ -3,6 +3,10 @@ from ..models import Project, Tag, RequestedProjects, RequestItem, VerificationD
 from django.contrib.auth import get_user_model
 from core.api.serializers import UserSerializer
 
+class SimplaUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = get_user_model()
+        fields = ['first_name', 'last_name', 'resume']
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -12,13 +16,15 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    num_tags     = serializers.IntegerField(read_only = True)
-    user         = UserSerializer(read_only = True)
-    tag          = TagSerializer(many = True, read_only = True)
-    admissionNo  = serializers.IntegerField(required = True)
+    num_tags            = serializers.IntegerField(read_only = True)
+    user                = SimplaUserSerializer(read_only = True)
+    tag                 = TagSerializer(many = True, read_only = True)
+    admissionNo         = serializers.IntegerField(required = True)
+    is_active           = serializers.BooleanField(read_only = True)
+    remaining_admission = serializers.IntegerField(read_only = True)
     class Meta:
-        model = Project
-        fields = ['id', 'title', 'description', 'tag', 'num_tags', 'user', 'admissionNo']
+        model  = Project
+        fields = ['id', 'title', 'description', 'tag', 'num_tags', 'user', 'admissionNo', 'is_active', 'remaining_admission']
 
 
     def create(self, validated_data):
