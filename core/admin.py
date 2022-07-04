@@ -43,6 +43,7 @@ class UserAdmin(BaseUserAdmin):
     #* ------------------------------
     list_filter = ("is_staff", "is_superuser", "is_active", "groups", "is_mentor", "otp_activated", "profile_stud__is_verified", MentorVerificationFilter)
     search_fields = ['first_name', 'last_name', 'phone']
+    actions_on_bottom = True
     #* ------------------------------
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('profile_stud', 'profile_mentor')
@@ -57,11 +58,17 @@ class UserAdmin(BaseUserAdmin):
 
 
 
+
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display        = ("id", "message_type", "send_time", "get_message")
+    list_display        = ("message_type", "send_time", "get_message")
     list_filter         = ("message_type", "send_time")
     search_fields       = ("reciever__phone", "reciever__first_name", "reciever__last_name")
     autocomplete_fields = ['reciever']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('reciever').all()
     def get_message(self, obj):
         return truncatewords(obj.message, 10)
+
+

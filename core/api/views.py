@@ -8,7 +8,7 @@ from ..models import Message, User, BaseUserManager
 from ..permissions import IsAdminOrReadOnly
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import ValidationError
-from smsServices.tasks import send_sms
+from smsServices.tasks import send_otp
 from rest_framework.decorators import action
 from rest_framework import status
 from datetime import datetime
@@ -36,7 +36,7 @@ class AuthTokenViewSet(ModelViewSet):
         try:
             User.objects.filter(phone=phone).exists()
             print('!-----<***||-o-||***>----!')
-            print(send_sms.delay(phone))
+            print(send_otp.delay(phone))
             print('!-----<***||-o-||***>----!')
                 # TODO will check otp verification time and send otp again if time is expired
             return Response({ 'phone':phone , 'message':f"otp code sent !. please check your phone and enter the otp code in actions otp section."})
@@ -56,7 +56,7 @@ class AuthTokenViewSet(ModelViewSet):
             user.set_password(BaseUserManager().make_random_password())
             user.save()
             print('!-----<***||-o-||***>----!')
-            print(send_sms.delay(phone))
+            print(send_otp.delay(phone))
             print('!-----<***||-o-||***>----!')
             return Response({ 'phone':phone , 'message':f"user created successfully."}, status=status.HTTP_201_CREATED)
 

@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task
-def send_sms(phone):
+def send_otp(phone):
     otp = get_random_string(length=6, allowed_chars='0123456789')
     logger.debug("Sending SMS to %s: %s" % (phone, str(otp)))
     user = User.objects.get(phone=phone)
@@ -18,3 +18,9 @@ def send_sms(phone):
     user.otpCode   = str(otp)
     user.save()
     return str(otp)
+
+
+# @shared_task
+# def send_sms(phone, message):
+#     logger.debug("Sending SMS to %s: %s" % (phone, message))
+#     return True

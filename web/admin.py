@@ -73,21 +73,14 @@ class ProjectAdmin(admin.ModelAdmin):
     ordering = ['title', 'created_at']
     # TODO : use better filters package and add search to filters box.
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('requests', 'user').annotate(
-            applied_No = Count('requests')
+        return super().get_queryset(request).select_related('user').prefetch_related('requests', 'tag').annotate(
+            applied_No = Count('requests__id')
         )
 
     def applied_count(self, obj):
         return obj.applied_No
 
 
-# class TublarApprovedItem(admin.TabularInline):
-#     model = models.ApprovedItem
-#     extra = 0
-#     autocomplete_fields = ['project']
-    
-#     def get_queryset(self, request):
-#         return super().get_queryset(request).select_related('project', 'parent')
 
 
 

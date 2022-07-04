@@ -24,6 +24,7 @@ celery = "*"
 flower = "*"
 pyotp = "*"
 redis = "*"
+docutils = "*"
 
 [dev-packages]
 django-admin-interface = "*"

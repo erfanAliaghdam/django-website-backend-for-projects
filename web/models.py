@@ -1,4 +1,3 @@
-from operator import is_
 from django.db import models
 from django.conf import settings
 from colorfield.fields import ColorField
@@ -15,6 +14,8 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+
 
 class ProfileStud(models.Model):
     user        = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile_stud')
@@ -60,8 +61,6 @@ class Project(models.Model):
 
 
 
-
-
 class RequestedProjects(models.Model):
     id       = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     user     = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='requested_projects')
@@ -83,7 +82,6 @@ class RequestItem(models.Model):
     passed  = models.BooleanField(default=False)
     class Meta:
         unique_together = ('parent', 'project')
-
 
 
 
