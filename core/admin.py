@@ -8,6 +8,7 @@ from .filters import MentorVerificationFilter
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
+    # change_form_template: str = 'admin/user_change_form.html'
     model = User
     add_fieldsets = (
         (

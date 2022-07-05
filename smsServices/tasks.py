@@ -16,11 +16,12 @@ def send_otp(phone):
     user = User.objects.get(phone=phone)
     user.otpExpire = timezone.now() + timedelta(minutes = settings.EXPIRE_CODE_AFTER_MINUTES)
     user.otpCode   = str(otp)
+    #TODO SEND SMS
     user.save()
     return str(otp)
 
 
-# @shared_task
-# def send_sms(phone, message):
-#     logger.debug("Sending SMS to %s: %s" % (phone, message))
-#     return True
+@shared_task
+def send_sms(phone, message):
+    logger.debug("Sending SMS to %s: %s" % (phone, message))
+    return True

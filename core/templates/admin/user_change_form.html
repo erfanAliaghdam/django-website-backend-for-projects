@@ -1,0 +1,28 @@
+{% extends 'admin/change_form.html' %}
+
+{% block submit_buttons_bottom %}
+    {{ block.super }}
+    <fieldset class="module">
+        <h2 style="background-color:#6091ACD9;">message</h2>
+        <table class="table" style="width:100%;">
+            <thead >
+                <tr>
+                    <th>message</th>
+                    <th>actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <form action="/your-name/" method="post">
+                <tr class="form-row">
+                    <td>
+                        <textarea name="message" cols="40" rows="6" class="vLargeTextField" required="" id="id_message"></textarea>
+                    </td>
+                    <td>
+                        <input style="background-color:#6091ACD9" type="submit" value="send sms" name="_make-unique"> 
+                    </td>
+                </tr>
+            </form>
+            </tbody>
+        </table>
+    </fieldset>
+{% endblock %}

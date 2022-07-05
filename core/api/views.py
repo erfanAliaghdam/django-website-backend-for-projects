@@ -1,5 +1,4 @@
 from datetime import datetime
-from itsdangerous import Serializer
 from rest_framework.response import Response
 from .serializers import MessageSerializer, CreateTokenSerializer, SendOtpSerializer, SignUpOtpSerializer
 from rest_framework.viewsets import ModelViewSet
