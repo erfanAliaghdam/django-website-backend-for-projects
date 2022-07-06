@@ -66,7 +66,7 @@ class ProjectAdmin(admin.ModelAdmin):
     fields        = ['title', 'user', 'slug', 'admissionNo', 'description', 'is_active', 'tag']
     list_display  = ['title', 'applied_count', 'admissionNo', 'is_active']
     search_fields = ['title', 'description', 'tag__name', 'user__phone']
-    list_filter   = [TagAutoCompleteFilter]
+    list_filter   = [TagAutoCompleteFilter, 'is_active']
     list_editable = ['is_active']
     filter_horizontal = ('tag',)
     autocomplete_fields = ['user']
