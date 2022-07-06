@@ -1,3 +1,4 @@
+from ast import arg
 from django.db import models
 from django.conf import settings
 from colorfield.fields import ColorField
@@ -79,7 +80,17 @@ class Project(models.Model):
     user         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='my_projects')
     admissionNo  = models.PositiveIntegerField(default=1)
     is_active    = models.BooleanField(default=False)
+    __original_is_active = None
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__original_is_active = self.is_active
+
+    def save(self, *args, **kwargs):
+        if self.is_active == True and self.__original_is_active == False:
+            send_sms.delay(self.user.phone, f"Your project ({self.title}) has been approved")
+        return super().save(args, kwargs)
+    
 
 
 class RequestedProjects(models.Model):
