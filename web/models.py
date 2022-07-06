@@ -76,7 +76,6 @@ class Project(models.Model):
     description  = models.TextField()
     created_at   = models.DateTimeField(auto_now_add=True)
     tag          = models.ManyToManyField(Tag, related_name='projects')
-    is_active    = models.BooleanField(default=True)
     user         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='my_projects')
     admissionNo  = models.PositiveIntegerField(default=1)
     is_active    = models.BooleanField(default=False)
