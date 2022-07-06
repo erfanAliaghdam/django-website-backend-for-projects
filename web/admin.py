@@ -1,7 +1,11 @@
+from tabnanny import verbose
 from django.contrib import admin
 from django.utils.html import format_html
 from django.db.models import Count, F
 from django.template.defaultfilters import truncatechars
+from rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+
 from .filters import TagAutoCompleteFilter
 from . import models
 # Register your models here.
@@ -40,9 +44,30 @@ class RequestedProjectAdmin(admin.ModelAdmin):
     inlines = [TublarRequestProjectItems]
     search_fields = ['user__phone']
     autocomplete_fields = ['user']
-
+    list_select_related = ['user']
+    list_filter = ['items__created_at']
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('items').select_related('user')
     def phone(self, obj):
         return str(obj.user.phone)
+
+
+@admin.register(models.RequestItem)
+class RequestItemAdmin(admin.ModelAdmin):
+    model       = models.RequestItem
+    list_display        = ['project_title', 'project_mentor', 'requested_user', 'created_at']
+    list_filter         = ['created_at', 'passed_time', 'approved_time']
+    search_fields       = ['project__title', 'parent__user__phone', 'project__user__phone']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('project', 'parent', 'parent__user', 'project__user')
+    def project_title(self, obj):
+        return str(truncatechars(obj.project.title, 10))
+    def project_mentor(self, obj):
+        return str(obj.project.user)
+    def requested_user(self, obj):
+        return str(obj.parent.user)
+
 
 @admin.register(models.Tag)
 class TagAdmin(admin.ModelAdmin):

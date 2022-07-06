@@ -5,6 +5,7 @@ from colorfield.fields import ColorField
 from private_storage.fields import PrivateFileField
 from smsServices.tasks import send_sms
 from uuid import uuid4
+from datetime import datetime
 
 
     
@@ -98,7 +99,9 @@ class RequestedProjects(models.Model):
     user     = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='requested_projects')
     def __str__(self) -> str:
         return self.user.phone
-
+    class  Meta:
+        verbose_name = 'grouped requests by user request'
+        verbose_name_plural = 'grouped requests by user request'
 
 class RequestItem(models.Model):
     PENDING  = 'p'
@@ -109,13 +112,17 @@ class RequestItem(models.Model):
         (APPROVE, 'Approve'),
         (REJECT,  'Reject'),
     )
-    parent  = models.ForeignKey(RequestedProjects, on_delete=models.PROTECT, related_name='items')
+    parent       = models.ForeignKey(RequestedProjects, on_delete=models.PROTECT, related_name='items')
     # TODO on delete project send email or sms to user
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='requests')
-    status  = models.CharField(max_length=5, choices=STATUS, default=PENDING)
-    passed  = models.BooleanField(default=False)
+    project       = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='requests')
+    status        = models.CharField(max_length=5, choices=STATUS, default=PENDING)
+    passed        = models.BooleanField(default=False)
+    created_at    = models.DateTimeField(auto_now_add=True)
+    passed_time   = models.DateTimeField(null=True, blank=True)
+    approved_time = models.DateTimeField(null=True, blank=True)
     __original_status = None
     __original_passed = None
+
     class Meta:
         unique_together = ('parent', 'project')
 
@@ -134,8 +141,12 @@ class RequestItem(models.Model):
         
         if self.status != self.__original_status and self.status != self.PENDING:
             send_sms.delay(self.parent.user.phone, "Your request for project {} is in status : {}, check your mentors message.".format(self.project.title, stat))
+            if self.status == self.APPROVE:
+                self.approved_time = datetime.now()
         if self.passed == True and self.__original_passed ==False:
             send_sms.delay(self.parent.user.phone, "congradulations you finished {} project .".format(self.project.title))
+            self.passed_time = datetime.now()
+
         
         super().save(*args, **kwargs)
         self.__original_status = self.status
