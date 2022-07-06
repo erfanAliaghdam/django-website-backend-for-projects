@@ -87,10 +87,12 @@ class Project(models.Model):
         super().__init__(*args, **kwargs)
         self.__original_is_active = self.is_active
 
-    def save(self, *args, **kwargs):
+
+    def save(self,force_insert=False, force_update=False, *args, **kwargs ):
         if self.is_active == True and self.__original_is_active == False:
             send_sms.delay(self.user.phone, f"Your project ({self.title}) has been approved")
-        return super().save(args, kwargs)
+        super().save(force_insert, force_update, *args, **kwargs)
+        self.__original_is_active = self.is_active
     
 
 
