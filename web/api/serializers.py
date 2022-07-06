@@ -10,6 +10,8 @@ class SimplaUserSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(read_only = True)
+    color = serializers.CharField(read_only = True)
     class Meta:
         model  = Tag
         fields = ['id', 'name', 'color']
@@ -18,7 +20,7 @@ class TagSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     num_tags            = serializers.IntegerField(read_only = True)
     user                = SimplaUserSerializer(read_only = True)
-    tag                 = TagSerializer(many = True, read_only = True)
+    tag                 = TagSerializer(required = True)
     admissionNo         = serializers.IntegerField(required = True)
     is_active           = serializers.BooleanField(read_only = True)
     remaining_admission = serializers.IntegerField(read_only = True)
