@@ -60,6 +60,8 @@ class RequestedItemsSerializer(serializers.ModelSerializer):
         project_id    = validated_data.pop('project_id')
         appliedNo     = RequestItem.objects.select_related('project').filter(project__id = project_id, status=RequestItem.APPROVE).count()
         admissionNo   = Project.objects.filter(pk = project_id).values()[0]['admissionNo']
+        if project.is_active == False:
+            raise serializers.ValidationError('Project is not active yet.')
         if admissionNo <= appliedNo:
             raise serializers.ValidationError('Admission is over, try another project', code = status.HTTP_400_BAD_REQUEST)
         #* if request parent doesnt exists od created accidently this try-except block will create new one
