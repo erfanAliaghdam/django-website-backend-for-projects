@@ -12,6 +12,7 @@ class SimplaUserSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     name  = serializers.CharField(read_only=True)
     color = serializers.CharField(read_only=True)
+
     class Meta:
         model  = Tag
         fields = ['id', 'name', 'color']

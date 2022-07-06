@@ -25,9 +25,12 @@ flower = "*"
 pyotp = "*"
 redis = "*"
 docutils = "*"
+pytest-watch = "*"
 
 [dev-packages]
 django-admin-interface = "*"
+pytest = "*"
+pytest-django = "*"
 
 [requires]
 python_version = "3.9"

@@ -16,7 +16,7 @@ class Tag(models.Model):
     color = ColorField(format="hexa", default="#00000")
 
     def __str__(self):
-        return self.name
+        return str(str(self.id) + '  -  '+ self.name)
 
 
 
@@ -116,12 +116,12 @@ class RequestItem(models.Model):
     )
     parent       = models.ForeignKey(RequestedProjects, on_delete=models.PROTECT, related_name='items')
     # TODO on delete project send email or sms to user
-    project       = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='requests')
-    status        = models.CharField(max_length=5, choices=STATUS, default=PENDING)
-    passed        = models.BooleanField(default=False)
-    created_at    = models.DateTimeField(auto_now_add=True)
-    passed_time   = models.DateTimeField(null=True, blank=True)
-    approved_time = models.DateTimeField(null=True, blank=True)
+    project           = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='requests')
+    status            = models.CharField(max_length=5, choices=STATUS, default=PENDING)
+    passed            = models.BooleanField(default=False)
+    created_at        = models.DateTimeField(auto_now_add=True)
+    passed_time       = models.DateTimeField(null=True, blank=True)
+    approved_time     = models.DateTimeField(null=True, blank=True)
     __original_status = None
     __original_passed = None
 
