@@ -90,7 +90,7 @@ class RequestedItemsViewSet(ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         objStatus     = RequestItem.objects.select_related('parent', 'user').filter(pk = self.kwargs['pk']).values('status')[0]['status']
         if objStatus == RequestItem.APPROVE:
-            raise ValidationError(code = status.HTTP_406_NOT_ACCEPTABLE, detail = 'You cannot delete an approved request')
+            raise ValidationError(code = status.HTTP_403_FORBIDDEN, detail = 'You cannot delete an approved request')
         return super().destroy(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):

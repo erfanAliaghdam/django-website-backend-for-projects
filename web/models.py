@@ -1,4 +1,5 @@
 from ast import arg
+from enum import unique
 from django.db import models
 from django.conf import settings
 from colorfield.fields import ColorField
@@ -102,7 +103,9 @@ class RequestedProjects(models.Model):
     class  Meta:
         verbose_name = 'grouped requests by user request'
         verbose_name_plural = 'grouped requests by user request'
+        unique_together = ('user','id')
 
+        
 class RequestItem(models.Model):
     PENDING  = 'p'
     APPROVE  = 'A'
