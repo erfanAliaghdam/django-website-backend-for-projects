@@ -93,7 +93,7 @@ class RequestedItemsViewSet(ModelViewSet):
             raise ValidationError(code = status.HTTP_403_FORBIDDEN, detail = 'You cannot delete an approved request')
         return super().destroy(request, *args, **kwargs)
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):  
         if 'project_id' not in request.data:
             raise ValidationError(code = status.HTTP_400_BAD_REQUEST, detail = 'Project ID is required')
         if RequestItem.objects.select_related('parent').filter(parent__user = self.request.user, status = RequestItem.APPROVE).count() >= int(settings.MAX_ACCEPTED_APPLY_NO):
