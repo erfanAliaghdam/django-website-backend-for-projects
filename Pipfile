@@ -26,12 +26,14 @@ pyotp = "*"
 redis = "*"
 docutils = "*"
 pytest-watch = "*"
+django-redis = "*"
 
 [dev-packages]
 django-admin-interface = "*"
 pytest = "*"
 pytest-django = "*"
 model-bakery = "*"
+locust = "*"
 
 [requires]
 python_version = "3.9"

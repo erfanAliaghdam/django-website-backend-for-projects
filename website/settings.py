@@ -191,3 +191,15 @@ CELERY_BROKER_URL = 'redis://localhost:6379/2'
 
 EXPIRE_CODE_AFTER_MINUTES = 3
 MAX_ACCEPTED_APPLY_NO = os.getenv('MAX_ACCEPTED_APPLY_NO')
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/3",
+        "TIMEOUT": 100,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}

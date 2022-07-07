@@ -16,7 +16,9 @@ from .serializers import (ProjectSerializer, TagSerializer,
 from ..models import Project, Tag, RequestItem, VerificationDoc, MentorMessageForAdmission
 
 from ..permissions import IsMentorOrReadOnly, IsMentor, IsVerifiedUser
-from smsServices.tasks import send_sms
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+
 # Create your views here.
 
 
@@ -37,7 +39,7 @@ class ProjectViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'context': self.request}
-
+    @method_decorator(cache_page(60))
     def list(self, request, *args, **kwargs):
         qs = Project.objects.select_related('user').prefetch_related('tag', 'requests').filter(is_active = True).annotate(
             remaining_admission = F('admissionNo') - Count('requests__id', filter=Q(requests__status = RequestItem.APPROVE))

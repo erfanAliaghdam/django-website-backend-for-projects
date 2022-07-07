@@ -28,8 +28,6 @@ class TestRequestProject:
         user2.profile_stud.is_verified = True
         user.profile_mentor.is_verified = True
         proj     = baker.make(Project, admissionNo = 0, user=user, is_active = True)
-        print(proj.id)
         client.force_authenticate(user = user2)
         response = client.post('/api/request/', {'project_id': proj.id})
-        print(response.__dict__)
         assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE

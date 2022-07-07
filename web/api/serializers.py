@@ -2,6 +2,8 @@ from rest_framework import serializers, status
 from ..models import Project, Tag, RequestedProjects, RequestItem, VerificationDoc, MentorMessageForAdmission
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError, NotAcceptable
+
+
 class SimplaUserSerializer(serializers.ModelSerializer):
     class Meta:
         model  = get_user_model()
@@ -26,6 +28,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Project
         fields = ['id', 'title', 'description', 'tag', 'num_tags', 'user', 'admissionNo', 'is_active', 'remaining_admission']
+
 
 
     def create(self, validated_data):
