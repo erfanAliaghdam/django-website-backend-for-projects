@@ -1,8 +1,7 @@
 from rest_framework import serializers, status
 from ..models import Project, Tag, RequestedProjects, RequestItem, VerificationDoc, MentorMessageForAdmission
 from django.contrib.auth import get_user_model
-from core.api.serializers import UserSerializer
-
+from rest_framework.exceptions import ValidationError, NotAcceptable
 class SimplaUserSerializer(serializers.ModelSerializer):
     class Meta:
         model  = get_user_model()
@@ -62,10 +61,10 @@ class RequestedItemsSerializer(serializers.ModelSerializer):
         project_id    = validated_data.pop('project_id')
         appliedNo     = RequestItem.objects.select_related('project').filter(project__id = project_id, status=RequestItem.APPROVE).count()
         admissionNo   = Project.objects.filter(pk = project_id).values()[0]['admissionNo']
-        if project.is_active == False:
-            raise serializers.ValidationError('Project is not active yet.')
+        if Project.objects.get(pk = project_id).is_active == False:
+            raise ValidationError('Project is not active yet.')
         if admissionNo <= appliedNo:
-            raise serializers.ValidationError('Admission is over, try another project', code = status.HTTP_400_BAD_REQUEST)
+            raise NotAcceptable('Admission is over, try another project', code = status.HTTP_406_NOT_ACCEPTABLE)
         #* if request parent doesnt exists od created accidently this try-except block will create new one
         try:
             request_parent = RequestedProjects.objects.get(user = self.context['request'].user)
@@ -75,13 +74,13 @@ class RequestedItemsSerializer(serializers.ModelSerializer):
 
         #* this block will check if requested current project or not
         if RequestItem.objects.filter(project_id = project_id, parent = request_parent).exists():
-            raise serializers.ValidationError('Project already requested')
+            raise ValidationError('Project already requested')
 
         #* will check if project exists or not if not raise error with message
         try:
             project = Project.objects.get(id = project_id)
         except Project.DoesNotExist:
-            raise serializers.ValidationError('Project does not exist')
+            raise ValidationError('Project does not exist')
         request_item = RequestItem.objects.create(project = project, parent= request_parent)
         return request_item
     
