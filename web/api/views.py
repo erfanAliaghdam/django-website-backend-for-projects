@@ -18,6 +18,7 @@ from ..models import Project, Tag, RequestItem, VerificationDoc, MentorMessageFo
 from ..permissions import IsMentorOrReadOnly, IsMentor, IsVerifiedUser
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
+from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
 
@@ -30,6 +31,7 @@ class ProjectViewSet(ModelViewSet):
     search_fields      = ['title', 'description']
     permission_classes = [IsMentorOrReadOnly]
     ordering_fields    = ['project__title']
+    pagination_class   = PageNumberPagination
 
 
     def get_queryset(self):
@@ -39,18 +41,27 @@ class ProjectViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'context': self.request}
+
     @method_decorator(cache_page(60))
     def list(self, request, *args, **kwargs):
         qs = Project.objects.select_related('user').prefetch_related('tag', 'requests').filter(is_active = True).annotate(
             remaining_admission = F('admissionNo') - Count('requests__id', filter=Q(requests__status = RequestItem.APPROVE))
             ).all()
-        serializer = ProjectSerializer(qs, many = True, context = {'context': request})
+        qs = self.paginate_queryset(qs)
+        if qs is not None:
+            serializer = ProjectSerializer(qs, many=True, context = {'context': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = ProjectSerializer(qs, many=True, context = {'context': request})
         return Response(serializer.data)
 
     @action(detail = False, methods=['GET'], permission_classes = [IsAuthenticated, IsMentor], ordering_fields=['project__title', 'project__is_active'])
     def me(self, request):
         if request.method == 'GET':
             project    = Project.objects.select_related('user').prefetch_related('tag').filter(user = self.request.user)
+            project = self.paginate_queryset(project)
+            if project is not None:
+                serializer = ProjectSerializer(project, many=True, context = {'context': request})
+                return self.get_paginated_response(serializer.data)
             serializer = ProjectSerializer(project, many = True)
             return Response(serializer.data)
 
@@ -152,7 +163,7 @@ class AcceptRequestsViewSet(ModelViewSet):
     filter_backends    = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     search_fields      = ['project__title', 'project__id']
     ordering_fields    = ['project__title']
-
+    pagination_class   = PageNumberPagination
     def get_queryset(self):
         return RequestItem.objects.select_related('project', 'parent__user').filter(project__user = self.request.user).all().annotate(
             remaining_admission = F('project__admissionNo') - Count('id', filter=Q(status = RequestItem.APPROVE)),
@@ -218,7 +229,7 @@ class AcceptRequestsViewSet(ModelViewSet):
 class MentorMessageViewSet(ModelViewSet):
     serializer_class   = MentorMessageSerializer
     permission_classes = [IsAuthenticated, IsVerifiedUser]
-
+    pagination_class   = PageNumberPagination
     def get_queryset(self):
         return MentorMessageForAdmission.objects.select_related('parent').all()
 
