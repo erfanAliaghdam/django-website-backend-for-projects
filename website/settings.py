@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 ROOT_URLCONF = 'website.urls'
@@ -86,7 +88,7 @@ WSGI_APPLICATION = 'website.wsgi.application'
 
 DATABASES =  {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE':  'django.db.backends.postgresql',
         'NAME':     os.getenv('NAME'),
         'USER':     os.getenv('USER'),
         'PASSWORD': os.getenv('PASSWORD'),
@@ -201,5 +203,35 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
+    }
+}
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '({levelname}) - {asctime} - {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+       'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': './general.log',
+            'formatter': 'verbose'
+
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+        },
+
     }
 }

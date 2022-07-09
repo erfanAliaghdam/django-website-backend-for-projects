@@ -27,6 +27,8 @@ redis = "*"
 docutils = "*"
 pytest-watch = "*"
 django-redis = "*"
+whitenoise = "*"
+gunicorn = "*"
 
 [dev-packages]
 django-admin-interface = "*"

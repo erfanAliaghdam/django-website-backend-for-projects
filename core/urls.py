@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .api.views import MessageViewSet, AuthTokenViewSet
-
+from .views import index
 
 router = DefaultRouter()
 router.register('', MessageViewSet, basename='messages')
@@ -14,4 +14,5 @@ urlpatterns = [
     path('api/auth/',               include('djoser.urls.jwt')),
     path('api/messages/',           include(router.urls)),
     path('api/auth/',               include(routerAuth.urls)),
+    path('',                        index, name='index'),
 ]

@@ -47,4 +47,3 @@ class SignUpOtpSerializer(serializers.Serializer):
     class Meta:
         model  = User
         fields = ['otpCode', 'phone', 'password']
-

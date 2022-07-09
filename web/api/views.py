@@ -35,7 +35,7 @@ class ProjectViewSet(ModelViewSet):
 
 
     def get_queryset(self):
-        return Project.objects.select_related('user').prefetch_related('tag', 'requests').annotate(
+        return Project.objects.select_related('user').prefetch_related('tag', 'requests').filter(is_active = True).annotate(
             remaining_admission = F('admissionNo') - Count('requests__id', filter=Q(requests__status = RequestItem.APPROVE))
             ).all()
 
@@ -44,20 +44,17 @@ class ProjectViewSet(ModelViewSet):
 
     @method_decorator(cache_page(60))
     def list(self, request, *args, **kwargs):
-        qs = Project.objects.select_related('user').prefetch_related('tag', 'requests').filter(is_active = True).annotate(
-            remaining_admission = F('admissionNo') - Count('requests__id', filter=Q(requests__status = RequestItem.APPROVE))
-            ).all()
-        qs = self.paginate_queryset(qs)
-        if qs is not None:
-            serializer = ProjectSerializer(qs, many=True, context = {'context': request})
-            return self.get_paginated_response(serializer.data)
+        qs = self.get_queryset()
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        paginator.paginate_queryset(qs, request)
         serializer = ProjectSerializer(qs, many=True, context = {'context': request})
-        return Response(serializer.data)
+        return paginator.get_paginated_response(serializer.data)
 
     @action(detail = False, methods=['GET'], permission_classes = [IsAuthenticated, IsMentor], ordering_fields=['project__title', 'project__is_active'])
     def me(self, request):
         if request.method == 'GET':
-            project    = Project.objects.select_related('user').prefetch_related('tag').filter(user = self.request.user)
+            project = self.get_queryset().filter(user = self.request.user)
             project = self.paginate_queryset(project)
             if project is not None:
                 serializer = ProjectSerializer(project, many=True, context = {'context': request})
@@ -69,7 +66,7 @@ class ProjectViewSet(ModelViewSet):
     @action(detail = False, methods=['GET', 'PUT'], permission_classes = [IsAuthenticated, IsMentor], url_path='me/(?P<project_id>[^/.]+)')
     def myProjectDetail(self, request, project_id):
         try:
-            project = Project.objects.prefetch_related('tag').select_related('user').get(user = self.request.user, pk = project_id)
+            project = self.get_queryset().get(user = self.request.user, pk = project_id)
         except Project.DoesNotExist:
             return Response(status = status.HTTP_404_NOT_FOUND)
         if request.method == 'GET':
@@ -98,7 +95,7 @@ class RequestedItemsViewSet(ModelViewSet):
     def get_queryset(self):
         return RequestItem.objects.select_related('project', 'parent').filter(parent__user = self.request.user).all().annotate(
             remaining_admission = F('project__admissionNo') - Count('id', filter=Q(status = RequestItem.APPROVE))
-        )
+        ).order_by('-id')
 
     def destroy(self, request, *args, **kwargs):
         objStatus     = RequestItem.objects.select_related('parent', 'user').filter(pk = self.kwargs['pk']).values('status')[0]['status']
@@ -168,12 +165,10 @@ class AcceptRequestsViewSet(ModelViewSet):
         return RequestItem.objects.select_related('project', 'parent__user').filter(project__user = self.request.user).all().annotate(
             remaining_admission = F('project__admissionNo') - Count('id', filter=Q(status = RequestItem.APPROVE)),
             active_count        = Count('id', filter=Q(status = RequestItem.APPROVE)),
-        )
+        ).order_by('-id')
     
     def get_serializer_context(self):
         return {'context': self.request}
-
-
 
     def create(self, request):
         return Response('FORBIDDEN 403', status=status.HTTP_403_FORBIDDEN)
@@ -235,19 +230,3 @@ class MentorMessageViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'context': self.request}
-
-    # @action(detail = True, methods=['GET','POST'],serializer_class=MentorMessageSerializer ,permission_classes = [IsAuthenticated, IsMentor], url_name='reply')
-    # def reply(self, request, *args, **kwargs):
-    #     obj     = self.get_object()
-    #     if request.method == 'GET':
-    #         serializer = MentorMessageSerializer(obj)
-    #         return Response(serializer.data)
-    #     elif request.method == 'POST':
-    #         try:
-    #             with transaction.atomic():
-            #         obj.message = request.POST['message']
-            #         obj.save()
-            #         return Response('Replied .' ,status = status.HTTP_200_OK)
-            # except Exception as e:
-            #     print(e)
-            #     return Response('error' , status = status.HTTP_406_NOT_ACCEPTABLE)

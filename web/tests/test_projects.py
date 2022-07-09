@@ -2,8 +2,19 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from model_bakery import baker
+from django.conf import settings
 import pytest
 
+@pytest.fixture(scope="session")
+def django_db_setup():
+    settings.DATABASES["default"] = {
+        'ENGINE'     : settings.DATABASES['default']['ENGINE'],
+        'NAME'       : settings.DATABASES['default']['NAME'],
+        'USER'       : settings.DATABASES['default']['USER'],
+        'PASSWORD'   : settings.DATABASES['default']['PASSWORD'],
+        'HOST'       : settings.DATABASES['default']['HOST'],
+        'PORT'       : settings.DATABASES['default']['PORT'],
+    }
 
 @pytest.mark.django_db()
 class TestCreateProject:
